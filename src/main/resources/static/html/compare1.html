@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../lib/layui/css/layui.css" media="all">
+</head>
+<style>
+    /*input[method=checkbox] {*/
+    /*    display: none*/
+    /*}*/
+</style>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>Configuration Compare</legend>
+</fieldset>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space3">
+        <div class="layui-col-md4">
+            <div class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">Project</label>
+                        <div class="layui-input-block">
+                            <select name="project" id="project" lay-filter="project-sel">
+                                <!--                <option value="">Please select project</option>-->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-btn-container">
+                <button type="button" class="layui-btn layui-btn-radius layui-btn-primary" lay-demo="collectFile">
+                    Collect File
+                </button>
+                <button type="button" class="layui-btn layui-btn-radius" lay-demo="compareFile">Compare</button>
+                <button type="button" class="layui-btn layui-btn-radius layui-btn-normal" lay-demo="syncConfig">Sync
+                </button>
+                <button type="button" class="layui-btn layui-btn-radius layui-btn-normal" lay-demo="reloadData"
+                        style="display: none">reload
+                </button>
+            </div>
+            <div class="js-tree"></div>
+        </div>
+        <div class="layui-col-md8" style="height: 100%;">
+            <div class="js-file-result" style="display: none">
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                    <legend>File Compare Result</legend>
+                </fieldset>
+                <div class="js-file-table">
+
+                </div>
+            </div>
+            <div class="js-dir-result" style="display: none">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                        <legend>Directory Compare Result</legend>
+                    </fieldset>
+                    <div class="js-master-dir"></div>
+                </div>
+            </div>
+            <div class="js-full-result" style="display: none;">
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-col-md12">
+                        <h3>Result: <span class="js-other-result"></span></h3>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-card">
+                            <div class="layui-card-header">Source File</div>
+                            <div class="js-source-full layui-card-body"
+                                 style="padding-left: 24px;padding-right: 24px;height: 400px;overflow: auto;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-card-header">Target File</div>
+                        <div class="js-target-full layui-card-body"
+                             style="padding-left: 24px;padding-right: 24px;height: 400px;overflow: auto;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../lib/layui/layui.js" charset="UTF-8"></script>
+<script type="text/javascript" src="../js/compare1.js"></script>
+</body>
+</html>

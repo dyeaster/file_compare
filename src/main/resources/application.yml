@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:dentifier.sqlite
+  jpa:
+    database-platform: com.ztesoft.config.compare.config.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    show-sql: true
+  devtools:
+    livereload:
+      enabled: true
+  resources:
+    static-locations: classpath:/static/
+
+
+
+#basePath: E:\test
+
+hosts:
+  rootpath: 'filecompare'
+  delimeter: '|'
+
+
+server:
+  port: 8080

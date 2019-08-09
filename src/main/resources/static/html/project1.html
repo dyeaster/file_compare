@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../lib/layui/css/layui.css" media="all">
+    <style>
+        .layui-form-label {
+            width: 100px;
+        }
+
+        .layui-input-block {
+            margin-left: 140px;
+        }
+        body {
+              padding: 0 20px;
+          }
+    </style>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>Project List</legend>
+</fieldset>
+<table class="js-host-grid" lay-filter="server-table"></table>
+
+<form class="layui-form" action="" lay-filter="js-host-form">
+    <div class="layui-col-md6" style="display: none;">
+        <div class="layui-form-item">
+            <label class="layui-form-label">Id</label>
+            <div class="layui-input-block">
+                <input type="text" name="projectId" placeholder=""
+                       class="layui-input" disabled>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md6">
+        <div class="layui-form-item">
+            <label class="layui-form-label">Project Name</label>
+            <div class="layui-input-block">
+                <input type="text" name="name" lay-verify="required" autocomplete="off" placeholder=""
+                       class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md6">
+        <div class="layui-form-item">
+            <label class="layui-form-label">Remarks</label>
+            <div class="layui-input-block">
+                <input type="text" name="comments" autocomplete="off" placeholder=""
+                       class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md6" style="display: none;">
+        <div class="layui-form-item">
+            <label class="layui-form-label">Host List</label>
+            <div class="layui-input-block">
+            <select multiple="multiple" lay-filter="test" id="host" type="multiple">
+                <option value=""></option>
+            </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md12">
+        <div class="layui-form-item" style="text-align: right; padding-right: 10px">
+            <div class="layui-input-block js-function-btn">
+                <button type="button" class="layui-btn js-layui-btn" data-type="onNewClick">New</button>
+                <button type="button" class="layui-btn layui-btn-primary js-layui-btn" data-type="onEditClick">Edit</button>
+                <button type="button" class="layui-btn layui-btn-primary js-layui-btn" data-type="onDeleteClick">Delete</button>
+            </div>
+            <div class="layui-input-block js-confirm-btn" style="display: none">
+                <button class="layui-btn" lay-submit="" lay-filter="host-submit">Submit</button>
+                <button type="button" class="layui-btn layui-btn-primary js-layui-btn" data-type="onCancelClick">Cancel</button>
+            </div>
+        </div>
+    </div>
+</form>
+<!--<table id="file-grid" class="js-file-grid"></table>-->
+<script src="../lib/layui/layui.js"></script>
+<script type="text/javascript" src="../js/project1.js"></script>
+</body>
+</html>

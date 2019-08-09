@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Disaster Recovery</title>
+        <link rel="stylesheet" href="../css/font.css">
+        <link rel="stylesheet" href="../css/xadmin.css">
+    <script type="text/javascript">
+        var t = null;
+        t = setTimeout(time, 1000);//開始运行
+        function time() {
+            clearTimeout(t);//清除定时器
+            dt = new Date();
+            var y = dt.getFullYear();//获取年
+            var M = dt.getMonth() + 1;//获取月
+            var d = dt.getDate();//获取日
+            var h = dt.getHours();//获取时
+            var m = dt.getMinutes();//获取分
+            var s = dt.getSeconds();//获取秒
+            document.getElementById("systemdate").innerHTML = "Current Time：" + y + "-" + M + "-" + d + " " + h + ":" + m + ":" + s;
+            t = setTimeout(time, 1000); //设定定时器，循环运行
+        }
+    </script>
+</head>
+<body>
+<div class="x-body layui-anim layui-anim-up">
+    <blockquote class="layui-elem-quote">Welcome administrator：
+        <span class="x-red">iWhaleCloud </span><span id="systemdate"></span>
+    </blockquote>
+<!--    <div class="js-guide" id="js-guide"></div>-->
+    <fieldset class="layui-elem-field" style="display: none;">
+        <legend>数据统计</legend>
+        <div class="layui-field-box">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <div class="layui-carousel x-admin-carousel x-admin-backlog" lay-anim="" lay-indicator="inside"
+                             lay-arrow="none" style="width: 100%; height: 90px;">
+                            <div carousel-item="">
+                                <ul class="layui-row layui-col-space10 layui-this">
+                                    <li class="layui-col-xs2">
+                                        <a href="javascript:;" class="x-admin-backlog-body">
+                                            <h3>会员数</h3>
+                                            <p>
+                                                <cite>0</cite></p>
+                                        </a>
+                                    </li>
+                                    <li class="layui-col-xs2">
+                                        <a href="javascript:;" class="x-admin-backlog-body">
+                                            <h3>方案数</h3>
+                                            <p>
+                                                <cite>0</cite></p>
+                                        </a>
+                                    </li>
+                                    <li class="layui-col-xs2">
+                                        <a href="javascript:;" class="x-admin-backlog-body">
+                                            <h3>总执行数</h3>
+                                            <p>
+                                                <cite>0</cite></p>
+                                        </a>
+                                    </li>
+                                    <li class="layui-col-xs2">
+                                        <a href="javascript:;" class="x-admin-backlog-body">
+                                            <h3>成功数</h3>
+                                            <p>
+                                                <cite>0</cite></p>
+                                        </a>
+                                    </li>
+                                    <li class="layui-col-xs2">
+                                        <a href="javascript:;" class="x-admin-backlog-body">
+                                            <h3>失败数</h3>
+                                            <p>
+                                                <cite>0</cite></p>
+                                        </a>
+                                    </li>
+                                    <li class="layui-col-xs2">
+                                        <a href="javascript:;" class="x-admin-backlog-body">
+                                            <h3>无效数</h3>
+                                            <p>
+                                                <cite>0</cite></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="layui-elem-field" style="display: none;">
+        <legend>系统通知</legend>
+        <div class="layui-field-box">
+            <table class="layui-table" lay-skin="line">
+                <tbody>
+                <tr>
+                    <td>
+                        <a class="x-a" href="#" target="_blank">VGOP系统版本V1.0</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="x-a" href="#" target="_blank">管理员号码：15773203906</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+    <fieldset class="layui-elem-field" style="display: none;">
+        <legend>系统信息</legend>
+        <div class="layui-field-box">
+            <table class="layui-table">
+                <tbody>
+                <tr>
+                    <th>VGOP文件分发系统版本</th>
+                    <td>V1.0</td>
+                </tr>
+                <tr>
+                    <th>服务器地址</th>
+                    <td>172.24.17.35</td>
+                </tr>
+                <tr>
+                    <th>操作系统</th>
+                    <td>Red Hat</td>
+                </tr>
+                <tr>
+                    <th>运行环境</th>
+                    <td>JDK1.7、CDH5.8.4、Kerberos认证</td>
+                </tr>
+                <tr>
+                    <th>java版本</th>
+                    <td>jdk1.7</td>
+                </tr>
+                <tr>
+                    <th>java运行方式</th>
+                    <td>可执行jar包</td>
+                </tr>
+                <tr>
+                    <th>MYSQL版本</th>
+                    <td>暂无</td>
+                </tr>
+                <tr>
+                    <th>oracle</th>
+                    <td>暂无</td>
+                </tr>
+                <tr>
+                    <th>上传附件限制</th>
+                    <td>100G</td>
+                </tr>
+                <tr>
+                    <th>执行时间限制</th>
+                    <td>30min</td>
+                </tr>
+                <tr>
+                    <th>剩余空间</th>
+                    <td>100G</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+    <fieldset class="layui-elem-field" style="display: none;">
+        <legend>开发团队</legend>
+        <div class="layui-field-box">
+            <table class="layui-table">
+                <tbody>
+                <tr>
+                    <th>版权所有</th>
+                    <td>中国移动电商大数据项目组
+                        <a href="http://#/" class='x-a' target="_blank">访问官网</a></td>
+                </tr>
+                <tr>
+                    <th>开发者</th>
+                    <td>TWXiner(15773203906)</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+    <blockquote class="layui-elem-quote layui-quote-nm" style="display: none;">感谢项目组内部人员提供技术支持。</blockquote>
+</div>
+
+</body>
+<!--<script type="text/javascript" src="../js/showdown.min.js"></script>-->
+<!--<script type="text/javascript" src="../js/showdown.js"></script>-->
+<!--<script>-->
+<!--    var converter = new showdown.Converter(),-->
+<!--        text = '#操作文档\n' +-->
+<!--            '* 项目基于springboot，jpa，layui前端框架\n' +-->
+<!--            '* 目标\n' +-->
+<!--            '    * 配置文件差异比较，同步\n' +-->
+<!--            '* 功能\n' +-->
+<!--            '    * 从服务器新增删除修改\n' +-->
+<!--            '    * 文件路径配置增删改查\n' +-->
+<!--            '    * 文件差异比较，文件夹差异比较展示\n' +-->
+<!--            '    * 配置文件同步到目标服务器\n' +-->
+<!--            '\n' +-->
+<!--            '## 项目启动\n' +-->
+<!--            '* 将filecompare文件夹拷贝至当前用户的根目录下\n' +-->
+<!--            '* 进入当前项目文件夹，进入bash目录，cd ./bash，当前目录存放了sqlite数据库文件dentifier.sqlite，应用的jar包filecompare-0.0.1-SNAPSHOT.jar，应用启停脚本start.sh, stop.sh\n' +-->
+<!--            '* 执行sh ./start.sh 即可启动应用，server.log存放的应用的运行日志\n' +-->
+<!--            '* 执行sh ./stop.sh 即可停止应用\n' +-->
+<!--            '\n' +-->
+<!--            '## 操作指南\n' +-->
+<!--            '### 默认端口：8989\n' +-->
+<!--            '共分为三个页面，Server Config, File Config, File Compare\n' +-->
+<!--            '## Server Config\n' +-->
+<!--            '此页面为服务器配置页面，单个服务器包含两个参数，user和hostip，分别为服务器用户，服务器ip地址，默认目标服务器已开启ssh免密登录\n' +-->
+<!--            '## File Config\n' +-->
+<!--            '此页面为文件配置页面，用于配置单个文件在主从服务器的路径，source 即为主服务器路径，target即为从服务器路径，配置文件夹需要已路径分隔符结尾，linux下为/\n' +-->
+<!--            '文件比较默认按照后缀进行比较，当前支持cfg键值对文件，比如项目的system.cfg文件，ini配置文件，其余文件无比较方案，直接比较整个文件内容，文件夹比较现实当前文件夹下文件内容\n' +-->
+<!--            '## File Compare\n' +-->
+<!--            '* 此页面为主要操作页面，用于将目标服务器待比较文件传输到本地，然后跟本机源端文件进行比较，生成比较结果，同时可以指定同步对应文件或者文件夹到目标端\n' +-->
+<!--            '    1. 首先勾选需要操作的ip地址，点击上部collect File按钮，完成文件收集工作\n' +-->
+<!--            '    2. 然后点击compare按钮，进行文件比较，\n' +-->
+<!--            '    3. 文件对比完成之后，点击ip下的文件或者文件夹子节点，右侧展示对应的对比结果\n' +-->
+<!--            '    4. 勾选需要同步的文件，点击sync按钮，即可同步指定文件到目标服务器，此步操作会备份目标端文件，同时将源端对应文件传输至指定位置\n' +-->
+<!--            '\n' +-->
+<!--            '## 操作样例\n' +-->
+<!--            '### 当前包含几个样例文件分别存放于filecompare的target 和source目录，其中source为源端目录，target为待比较目录\n',-->
+<!--        html = converter.makeHtml(text);-->
+<!--    document.getElementById("systemdate").innerHTML = html;-->
+<!--</script>-->
+</html>
