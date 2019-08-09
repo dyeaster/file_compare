@@ -39,7 +39,7 @@ public class ScpTools {
         try {
             sftpv3Client = new SFTPv3Client(connection);
             //查看目标服务器此文件夹是否存在
-            Boolean b = SCPUtilsTwo.isDir(sftpv3Client, fileInfo.getTarget());
+            Boolean b = isDir(sftpv3Client, fileInfo.getTarget());
             if (!b) {
                 System.out.println("文件夹不存在");
                 map.put("code", -1);
@@ -69,7 +69,19 @@ public class ScpTools {
         map.put("code",0);
         return map;
     }
-
+    public static Boolean isDir(SFTPv3Client sftpv3Client, String path) {
+        if (sftpv3Client != null && path != null && path.length() != 0) {
+            SFTPv3FileAttributes sFTPv3FileAttributes;
+            try {
+                sFTPv3FileAttributes = sftpv3Client.lstat(path);
+            } catch (IOException e) {
+                System.out.println("文件加不存在：" + e.getLocalizedMessage());
+                return false;
+            }
+            return sFTPv3FileAttributes.isDirectory();
+        }
+        return false;
+    }
     public static void getRemoteFile(String remoteFile, String remoteTargetDirectory, String newPath, Connection connection) {
         SCPClient scpClient = null;
         SCPInputStream sis = null;
@@ -365,28 +377,5 @@ public class ScpTools {
 
         File f1 = new File("E:\\Documents\\test\\127.0.0.1\\111.txt");
         System.out.println(f1.getAbsolutePath());
-//        ScpTools.getInstance("120.79.191.173",22, "wyx","q03081189").
-//                uploadFile(f1, "/home/wyx/nodebb", null);
-
-//        ScpTools.getInstance("120.79.191.173",22, "wyx","q03081189").
-//                downloadFile("scpfile.sh","/home/wyx/","E:\\Documents\\");
-//        ScpTools scpTools = new ScpTools("120.79.191.173", 22, "wyx", "q03081189");
-//        ScpTools tools =new ScpTools("120.79.191.173",22, "wyx","111");
-//        System.out.println(scpTools.getPassword());
-//        scpTools.downloadFile("source", "/home/wyx/", "E:\\Documents\\");
-//        Connection connection = new Connection("120.79.191.173");
-//        connection.connect();
-//        System.out.println("开始登录");
-//        boolean isAuthenticated = connection.authenticateWithPassword("wyx", "q03081189");
-//        if (!isAuthenticated)
-//            throw new IOException("Authentication failed.");
-//        Map<String, Object> map = ScpTools.getRemoteFile("/home/wyx/source/dir1/test1", "E:\\Documents\\888.txt", connection);
-//        System.out.println(map.get("fileName"));
-//        System.out.println(map.get("code"));
-//        backup file
-//        String fileName  = "/home/wyx/source/";
-//        String a = backupFile(fileName,connection);
-//        System.out.println(a);
-//        connection.close();
     }
 }

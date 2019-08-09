@@ -13,24 +13,15 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>filecompare</name>
     <description>Demo project for Spring Boot</description>
-
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>2.0.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa -->
         <dependency>
@@ -38,7 +29,6 @@
             <artifactId>spring-data-jpa</artifactId>
             <version>2.1.10.RELEASE</version>
         </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
         <dependency>
             <groupId>org.xerial</groupId>
@@ -51,7 +41,6 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <version>5.4.3.Final</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -64,23 +53,16 @@
             <version>2.1.6.RELEASE</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.9</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.3</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
 <!--        <dependency>-->
 <!--            <groupId>org.apache.commons</groupId>-->
-<!--            <artifactId>commons-csv</artifactId>-->
-<!--            <version>1.7</version>-->
+<!--            <artifactId>commons-lang3</artifactId>-->
+<!--            <version>3.9</version>-->
+<!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
+<!--        <dependency>-->
+<!--            <groupId>commons-beanutils</groupId>-->
+<!--            <artifactId>commons-beanutils</artifactId>-->
+<!--            <version>1.9.3</version>-->
 <!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
@@ -100,38 +82,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-<!--        -->
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>io.springfox</groupId>-->
-<!--            <artifactId>springfox-swagger2</artifactId>-->
-<!--            <version>2.9.2</version>-->
-<!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
-<!--        <dependency>-->
-<!--            <groupId>io.springfox</groupId>-->
-<!--            <artifactId>springfox-swagger-ui</artifactId>-->
-<!--            <version>2.9.2</version>-->
-<!--        </dependency>&lt;!&ndash; 自定义 swagger2 Starter 组件依赖 &ndash;&gt;-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.spring4all</groupId>-->
-<!--            <artifactId>spring-boot-starter-swagger</artifactId>-->
-<!--            <version>1.5.1.RELEASE</version>-->
-<!--        </dependency>-->
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.spring4all/swagger-spring-boot-starter &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.spring4all</groupId>-->
-<!--            <artifactId>swagger-spring-boot-starter</artifactId>-->
-<!--            <version>1.9.0.RELEASE</version>-->
-<!--        </dependency>-->
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -163,5 +119,4 @@
             </properties>
         </profile>
     </profiles>
-
 </project>
