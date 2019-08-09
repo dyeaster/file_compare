@@ -30,12 +30,12 @@ public class ScpTools {
 
     }
 
-    public static Map<String,Object> getRemoteDir(FileInfo fileInfo, String basePath, Connection connection) {
+    public static Map<String, Object> getRemoteDir(FileInfo fileInfo, String basePath, Connection connection) {
         logger.info("begin to get dir to local:==================");
         SFTPv3Client sftpv3Client = null;
         List<String> excludeFiles = FileInfoUtil.getExcludeFile(fileInfo);
         logger.info("basepath: ： ================" + basePath);
-        Map<String,Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         try {
             sftpv3Client = new SFTPv3Client(connection);
             //查看目标服务器此文件夹是否存在
@@ -66,9 +66,10 @@ public class ScpTools {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        map.put("code",0);
+        map.put("code", 0);
         return map;
     }
+
     public static Boolean isDir(SFTPv3Client sftpv3Client, String path) {
         if (sftpv3Client != null && path != null && path.length() != 0) {
             SFTPv3FileAttributes sFTPv3FileAttributes;
@@ -82,6 +83,7 @@ public class ScpTools {
         }
         return false;
     }
+
     public static void getRemoteFile(String remoteFile, String remoteTargetDirectory, String newPath, Connection connection) {
         SCPClient scpClient = null;
         SCPInputStream sis = null;
@@ -170,7 +172,7 @@ public class ScpTools {
         String bakName = target.substring(target.lastIndexOf("/") + 1);
 //        bak.`date +%y%m%d`.tar.gz
         String cmd = "cd " + remotePath + "; tar -zcf " + bakName + "-`date +%Y%m%d%H%M%S`.bak " + bakName + ";";
-        String[] temp = executeCmd(cmd,connection);
+        String[] temp = executeCmd(cmd, connection);
         return temp[2];
     }
 
@@ -205,7 +207,7 @@ public class ScpTools {
         Map<String, Object> map = new HashMap<>();
         System.out.println("begin to upload file");
         logger.info("fileName: " + f.getAbsolutePath() + "=====" + f.getName());
-        logger.info("remote Path: "+ remoteTargetDirectory);
+        logger.info("remote Path: " + remoteTargetDirectory);
         SCPClient scpClient = null;
         SCPOutputStream os = null;
         FileInputStream fis = null;
@@ -245,9 +247,9 @@ public class ScpTools {
     /**
      * 上传文件到服务器
      *
-     * @param fileInfo                     文件对象
+     * @param fileInfo   文件对象
      * @param connection 上传路径
-     * @param mode                  默认为null
+     * @param mode       默认为null
      */
     public static Map<String, Object> uploadDir(FileInfo fileInfo, Connection connection, String mode) {
         Map<String, Object> map = new HashMap<>();
@@ -264,11 +266,11 @@ public class ScpTools {
             String sourceDir = fileInfo.getSource();
             File source = new File(sourceDir);
             File[] sourceFiles = source.listFiles();
-            if(sourceFiles == null || sourceFiles.length == 0) {
+            if (sourceFiles == null || sourceFiles.length == 0) {
                 return null;
             }
             for (File f : sourceFiles) {
-                if(excludeFiles!= null && excludeFiles.contains(f.getName())) {
+                if (excludeFiles != null && excludeFiles.contains(f.getName())) {
                     continue;
                 }
                 logger.info("begin to trans  dir  file to remote:" + f.getName());
@@ -345,7 +347,7 @@ public class ScpTools {
                 if (stdErr != null) {
                     stdErr.close();
                 }
-            }catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

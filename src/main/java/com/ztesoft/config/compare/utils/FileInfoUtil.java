@@ -25,7 +25,7 @@ public class FileInfoUtil {
 
     public static List<String> getExcludeFile(FileInfo fileInfo) {
         String exclude = fileInfo.getExclude();
-        if (exclude.length()==0){
+        if (exclude.length() == 0) {
             return null;
         }
         return Arrays.asList(exclude.split("\\|"));
@@ -34,11 +34,11 @@ public class FileInfoUtil {
     public static FileInfo deleteEndSeparator(FileInfo fileInfo) {
         String target = fileInfo.getTarget();
         String source = fileInfo.getSource();
-        if(target.endsWith(File.separator)) {
-            fileInfo.setTarget(target.substring(0,target.length()-1));
+        if (target.endsWith(File.separator)) {
+            fileInfo.setTarget(target.substring(0, target.length() - 1));
         }
-        if(target.endsWith(File.separator)) {
-            fileInfo.setSource(source.substring(0,source.length()-1));
+        if (target.endsWith(File.separator)) {
+            fileInfo.setSource(source.substring(0, source.length() - 1));
         }
         return fileInfo;
     }

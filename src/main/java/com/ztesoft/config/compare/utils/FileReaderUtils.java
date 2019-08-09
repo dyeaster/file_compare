@@ -90,7 +90,7 @@ public class FileReaderUtils {
         List<String> contents2 = getStringListFromFile(fileName2);
         boolean flag = true;
         int index = Math.max(contents1.size(), contents2.size());
-        if(contents1.size() >= contents2.size()) {
+        if (contents1.size() >= contents2.size()) {
             for (int i = 0; i < index; i++) {
                 ContentValueInfo contentValueInfo = new ContentValueInfo();
                 contentValueInfo.setName(String.valueOf(i));
@@ -245,9 +245,6 @@ public class FileReaderUtils {
     }
 
     public static void main(String[] args) {
-//        String fileName1 = "/home/wyx/source/dir2/itcom.ini";
-//        String fileName2 = "E:\\Documents\\project\\filecompare\\src\\main\\resources\\test_1.properties";
-//        String flag = FileReaderUtils.getFileType(fileName1);
-//        System.out.println(flag);
+
     }
 }

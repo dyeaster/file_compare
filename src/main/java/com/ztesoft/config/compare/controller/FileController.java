@@ -1,7 +1,7 @@
 package com.ztesoft.config.compare.controller;
 
 import com.ztesoft.config.compare.entity.FileInfo;
-import com.ztesoft.config.compare.entity.FileInfoRepository;
+import com.ztesoft.config.compare.repository.FileInfoRepository;
 import com.ztesoft.config.compare.utils.FileInfoUtil;
 import com.ztesoft.config.compare.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +23,7 @@ public class FileController {
         List<FileInfo> fileInfos = fileInfoRepository.findAll();
         return ResponseUtil.renderTableResponse(fileInfos);
     }
+
     @RequestMapping(value = "/host/{id}", method = RequestMethod.GET)
     public Map<String, Object> findByHostId(@PathVariable Long id) {
 //        List<FileInfo> fileInfos = fileInfoRepository.findByHostId(Long.valueOf(id));

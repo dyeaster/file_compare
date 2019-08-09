@@ -22,6 +22,7 @@ public class SysUtil {
     public static String getBasePath(HostInfo hostInfo, String projectName) {
         return getRootPath() + projectName + File.separator + hostInfo.getHostIp() + File.separator;
     }
+
     public static String getBasePathWithoutSeparator(HostInfo hostInfo, String projectName) {
         return getRootPath() + projectName + File.separator + hostInfo.getHostIp();
     }

@@ -1,6 +1,5 @@
 package com.ztesoft.config.compare.service;
 
-import com.ztesoft.config.compare.dto.FileCompare;
 import com.ztesoft.config.compare.entity.FileInfo;
 import com.ztesoft.config.compare.entity.HostInfo;
 
@@ -12,8 +11,6 @@ import java.util.Map;
  */
 //@Service
 public interface FileService {
-
-    Map compareFile(FileCompare fileCompare);
 
     Map<String, Object> syncFile2Server(FileInfo fileInfo);
 

@@ -26,7 +26,6 @@ public class TestController {
     }
 
 
-
 //    @RequestMapping(value = "/server")
 //    public ServerConfig serverConfig() {
 //        return serverConfig;
@@ -41,8 +40,8 @@ public class TestController {
 
 
     public static void main(String[] args) {
-        Map<String,String> map = new HashMap<>();
-        map.put("111","222");
+        Map<String, String> map = new HashMap<>();
+        map.put("111", "222");
         System.out.println(map.get("111"));
         System.out.println(".................");
         System.out.println(map.get("222"));

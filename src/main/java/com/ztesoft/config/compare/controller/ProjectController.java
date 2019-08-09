@@ -1,7 +1,7 @@
 package com.ztesoft.config.compare.controller;
 
 import com.ztesoft.config.compare.entity.Project;
-import com.ztesoft.config.compare.entity.ProjectRepository;
+import com.ztesoft.config.compare.repository.ProjectRepository;
 import com.ztesoft.config.compare.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +22,8 @@ public class ProjectController {
         return projectRepository.save(project);
     }
 
-    @RequestMapping(method = RequestMethod.POST,value = "/p")
-    public Project insert1(@RequestParam String name,@RequestParam String comments) {
+    @RequestMapping(method = RequestMethod.POST, value = "/p")
+    public Project insert1(@RequestParam String name, @RequestParam String comments) {
         Project project = new Project();
         project.setName(name);
         project.setComments(comments);

@@ -1,7 +1,10 @@
 package com.ztesoft.config.compare.controller;
 
-import com.ztesoft.config.compare.dto.HostDto;
 import com.ztesoft.config.compare.entity.*;
+import com.ztesoft.config.compare.repository.FileInfoRepository;
+import com.ztesoft.config.compare.repository.HostDetailRepository;
+import com.ztesoft.config.compare.repository.HostInfoRepository;
+import com.ztesoft.config.compare.repository.ProjectRepository;
 import com.ztesoft.config.compare.service.FileService;
 import com.ztesoft.config.compare.utils.HostUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +57,7 @@ public class CompareController {
         Map<String, Object> map = new HashMap<>();
         compareResult = new HashMap<>();
         List<FileInfo> fileInfos = fileInfoRepository.findByHostId(id);
-        List<Map<String, Object>> list =  fileService.collectFileById(id);
+        List<Map<String, Object>> list = fileService.collectFileById(id);
         map.put("result", list);
         map.put("files", fileInfos);
         return map;
@@ -70,22 +73,6 @@ public class CompareController {
             compareResult.put("file" + fileInfo.getFileId(), fileService.compareFile(hostInfo, fileInfo));
         }
         return compareResult;
-    }
-
-    @RequestMapping(value = "/execute1", method = RequestMethod.POST)
-    public Map<String, Object> compareFiles(@RequestBody HostDto hostDto) {
-        System.out.println("enter /compare/execute1");
-        Map<String, Object> map = new HashMap<>();
-//        List<FileInfo> fileInfos = hostDto.getFileInfoList();
-//        HostInfo hostInfo = new HostInfo();
-//        hostInfo.setHostIp(hostDto.getHostIp());
-//        for (FileInfo fileInfo : fileInfos) {
-//            String fileName = FileReaderUtils.getFileName(fileInfo.getSource());
-//            map.put(fileName, fileService.compareFile(hostInfo, fileInfo));
-//        }
-//        compareResult.put(hostInfo.getUser() + "@" + hostInfo.getHostIp(), map);
-//        compareResult.put(hostInfo.getHostIp(), map);
-        return map;
     }
 
     @RequestMapping(value = "/result", method = RequestMethod.POST)

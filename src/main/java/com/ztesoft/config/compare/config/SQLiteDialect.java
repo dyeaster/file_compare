@@ -34,10 +34,10 @@ public class SQLiteDialect extends Dialect {
         registerColumnType(Types.CLOB, "clob");
         registerColumnType(Types.BOOLEAN, "integer");
 
-        registerFunction( "concat", new VarArgsSQLFunction(StringType.INSTANCE, "", "||", "") );
-        registerFunction( "mod", new SQLFunctionTemplate( StringType.INSTANCE, "?1 % ?2" ) );
-        registerFunction( "substr", new StandardSQLFunction("substr", StringType.INSTANCE) );
-        registerFunction( "substring", new StandardSQLFunction( "substr", StringType.INSTANCE) );
+        registerFunction("concat", new VarArgsSQLFunction(StringType.INSTANCE, "", "||", ""));
+        registerFunction("mod", new SQLFunctionTemplate(StringType.INSTANCE, "?1 % ?2"));
+        registerFunction("substr", new StandardSQLFunction("substr", StringType.INSTANCE));
+        registerFunction("substring", new StandardSQLFunction("substr", StringType.INSTANCE));
     }
 
     public boolean supportsIdentityColumns() {
@@ -77,7 +77,7 @@ public class SQLiteDialect extends Dialect {
     }
 
     protected String getLimitString(String query, boolean hasOffset) {
-        return new StringBuffer(query.length()+20).
+        return new StringBuffer(query.length() + 20).
                 append(query).
                 append(hasOffset ? " limit ? offset ?" : " limit ?").
                 toString();

@@ -170,7 +170,7 @@ public class FileUtil {
     }
 
     private static Map<String, Map<String, String>> mergeIniMap(Map<String, Map<String, String>> sourceMap, List<Map<String, String>> valueList) {
-        if(valueList.size() == 0) {
+        if (valueList.size() == 0) {
             return sourceMap;
         }
         for (Map<String, String> map : valueList) {
@@ -230,7 +230,7 @@ public class FileUtil {
      * @return 结果map
      */
     private static Map<String, String> mergeMap(Map<String, String> sourceMap, Map<String, String> valueMap) {
-        if(valueMap.size() == 0) {
+        if (valueMap.size() == 0) {
             return sourceMap;
         }
         for (Map.Entry<String, String> entry : valueMap.entrySet()) {
@@ -253,7 +253,7 @@ public class FileUtil {
         }
         String[] strArr = str.split("\\|");
         for (String s : strArr) {
-            if(s.length() == 0 || !s.contains("=")) {
+            if (s.length() == 0 || !s.contains("=")) {
                 break;
             }
             String[] temp = s.split("=");
@@ -279,7 +279,7 @@ public class FileUtil {
             return tempList;
         }
         for (String s : strArr) {
-            if(s.length() == 0 || !s.contains("=")) {
+            if (s.length() == 0 || !s.contains("=")) {
                 break;
             }
             String[] temp = s.split("=");
@@ -411,7 +411,7 @@ public class FileUtil {
         }
 
         String[] content = file.list();//取得当前目录下所有文件和文件夹
-        if(content == null || content.length ==0 ){
+        if (content == null || content.length == 0) {
             return true;
         }
         for (String name : content) {

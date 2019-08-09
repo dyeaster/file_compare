@@ -1,11 +1,13 @@
 package com.ztesoft.config.compare.service.impl;
 
 import ch.ethz.ssh2.Connection;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.ztesoft.config.compare.dto.ContentValueInfo;
-import com.ztesoft.config.compare.dto.FileCompare;
 import com.ztesoft.config.compare.dto.FileValueInfo;
 import com.ztesoft.config.compare.entity.*;
+import com.ztesoft.config.compare.repository.FileInfoRepository;
+import com.ztesoft.config.compare.repository.HostDetailRepository;
+import com.ztesoft.config.compare.repository.HostInfoRepository;
+import com.ztesoft.config.compare.repository.ProjectRepository;
 import com.ztesoft.config.compare.service.FileService;
 import com.ztesoft.config.compare.utils.*;
 import org.slf4j.Logger;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Target;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -33,37 +34,6 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private ProjectRepository projectRepository;
-
-    @Override
-    public Map<String, Object> compareFile(FileCompare fileCompare) {
-//        logger.info("=====begin to compare file===== fileName:" + fileCompare.getSourceFile());
-//        String sourceFile = fileCompare.getSourceFile();
-//        logger.info("fileName: " + sourceFile);
-//        if (sourceFile.endsWith(File.separator)) {
-//            return compareDir(fileCompare);
-//        }
-//        String fileName = FileReaderUtils.getFileName(sourceFile);
-//        if (!fileName.contains(".")) {
-//            return compareAll(fileCompare);
-//        }
-//        String[] temp = fileName.split("\\.");
-//        String suffix = temp[temp.length - 1].toUpperCase();
-//        switch (suffix) {
-//            case "CSV":
-//                return compareCSV(fileCompare);
-//            case "XML":
-//                return compareXml(fileCompare);
-//            case "SCR":
-//                return compareScr(fileCompare);
-//            case "CFG":
-//                return compareConfig(fileCompare);
-//            case "INI":
-//                return compareIni(fileCompare);
-//            default:
-//                return null;
-//        }
-        return null;
-    }
 
     @Override
     public Map<String, Object> syncFile2Server(FileInfo fileInfo) {
@@ -277,14 +247,14 @@ public class FileServiceImpl implements FileService {
         File target = new File(targetDir);
         File[] targetFiles = target.listFiles();
 //        logger.info("targetDir file count:" + targetFiles.length);
-        if (targetFiles ==  null || targetFiles.length == 0) {
+        if (targetFiles == null || targetFiles.length == 0) {
             System.out.println("no files found in: " + targetDir);
         }
         List<FileValueInfo> fileValueInfos = new ArrayList<>();
         assert sourceFiles != null;
         List<String> excludeFiles = FileInfoUtil.getExcludeFile(fileInfo);
         for (File f : sourceFiles) {
-            if(excludeFiles != null && excludeFiles.contains(f.getName())) {
+            if (excludeFiles != null && excludeFiles.contains(f.getName())) {
                 continue;
             }
             // todo 添加跳过的文件

@@ -1,5 +1,6 @@
-package com.ztesoft.config.compare.entity;
+package com.ztesoft.config.compare.repository;
 
+import com.ztesoft.config.compare.entity.HostDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

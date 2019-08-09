@@ -1,6 +1,8 @@
 package com.ztesoft.config.compare.controller;
 
 import com.ztesoft.config.compare.entity.*;
+import com.ztesoft.config.compare.repository.HostDetailRepository;
+import com.ztesoft.config.compare.repository.HostInfoRepository;
 import com.ztesoft.config.compare.utils.HostUtil;
 import com.ztesoft.config.compare.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ public class HostController {
     @RequestMapping(method = RequestMethod.POST)
     public Map<String, Object> insert(@RequestBody Map<String, String> param) {
         Map<String, Object> resultMap = new HashMap<>();
-        if(!HostUtil.checkHost(param)) {
+        if (!HostUtil.checkHost(param)) {
             resultMap.put("code", -1);
             resultMap.put("msg", "server information is not correct, please try again.");
             return resultMap;
@@ -62,7 +64,7 @@ public class HostController {
     @RequestMapping(method = RequestMethod.PUT)
     public Map<String, Object> update(@RequestBody Map<String, String> param) {
         Map<String, Object> resultMap = new HashMap<>();
-        if(!HostUtil.checkHost(param)) {
+        if (!HostUtil.checkHost(param)) {
             resultMap.put("code", -1);
             resultMap.put("msg", "server information is not correct, please try again.");
             return resultMap;

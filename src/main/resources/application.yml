@@ -9,6 +9,7 @@ spring:
       naming:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
     show-sql: true
+#  热更新
   devtools:
     livereload:
       enabled: true
@@ -17,12 +18,6 @@ spring:
 
 
 
-#basePath: E:\test
-
-hosts:
-  rootpath: 'filecompare'
-  delimeter: '|'
-
-
 server:
   port: 8080
+debug: false

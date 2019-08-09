@@ -27,8 +27,8 @@ public class DiffProperties {
      * @param targetFile
      */
     public static List<ContentValueInfo> compareProperties(String sourceFile, String targetFile) {
-        Map<String,String> sourceValueMap = getPropertyMap(sourceFile);
-        Map<String,String> targetValueMap = getPropertyMap(targetFile);
+        Map<String, String> sourceValueMap = getPropertyMap(sourceFile);
+        Map<String, String> targetValueMap = getPropertyMap(targetFile);
         List<ContentValueInfo> contentValueInfos = new ArrayList<>();
         Set<String> totalSet = new HashSet<>();
         totalSet.addAll(sourceValueMap.keySet());
@@ -77,8 +77,9 @@ public class DiffProperties {
         }
         return pList;
     }
-    public static Map<String,String> getPropertyMap(String file) {
-        Map<String,String> map = new HashMap<>();
+
+    public static Map<String, String> getPropertyMap(String file) {
+        Map<String, String> map = new HashMap<>();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
             DataInputStream in = new DataInputStream(fileInputStream);
@@ -89,7 +90,7 @@ public class DiffProperties {
 
                 if (!strLine.contains("#") && strLine.contains("=")) {
                     String[] tmpArr = strLine.split("=", 2);
-                    map.put(tmpArr[0].trim(),tmpArr[1].trim());
+                    map.put(tmpArr[0].trim(), tmpArr[1].trim());
                 }
             }
             in.close();
@@ -98,6 +99,7 @@ public class DiffProperties {
         }
         return map;
     }
+
     static class Property {
         private String key;
         private String value;

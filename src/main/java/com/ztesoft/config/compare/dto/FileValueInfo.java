@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class FileValueInfo {
     private String fileName;
-//    1 same, 2 diff, 3. lack 4 additional
+    //    1 same, 2 diff, 3. lack 4 additional
     private String status;
     private Long sourceLength;
     private Long targetLength;
