@@ -310,7 +310,7 @@ layui.use(['tree', 'form', 'util', 'table'], function () {
                 user: host.user,
                 fileId: fileId
             };
-            $.post('/compare/sync1', param, function (data, status) {
+            $.post('/compare/sync', param, function (data, status) {
                 console.log(data);
                 layer.msg("Sync file to target server success.", {icon: 6, offset: 't'});
             });

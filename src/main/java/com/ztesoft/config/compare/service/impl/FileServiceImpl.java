@@ -105,8 +105,6 @@ public class FileServiceImpl implements FileService {
         String targetFileName = fileInfo.getTarget();
         map.put("result", FileReaderUtils.isSameFile(sourceFileName, targetFileName));
         map.put("comments", "full");
-//        map.put("source", FileUtil.file2String(sourceFileName));
-//        map.put("target", FileUtil.file2String(targetFileName));
         map.put("source", FileReaderUtils.getStringListFromFile(sourceFileName));
         map.put("target", FileReaderUtils.getStringListFromFile(targetFileName));
         return map;
@@ -132,8 +130,6 @@ public class FileServiceImpl implements FileService {
      * @return
      */
     private Map<String, Object> compareIniMap(Map<String, Map<String, String>> sourceMap, Map<String, Map<String, String>> targetMap, Integer type) {
-//        Set<String> sourceSet = sourceMap.keySet();
-//        Set<String> targetSet = targetMap.keySet();
         List<ContentValueInfo> list = new ArrayList<>();
         Set<String> totalSet = new HashSet<>();
         totalSet.addAll(sourceMap.keySet());
@@ -281,15 +277,6 @@ public class FileServiceImpl implements FileService {
         return map;
     }
 
-    public void transfer2Server(String localFile, String remoteFile, String host, String user) {
-        logger.info("begin to transfer: " + localFile);
-        if (localFile.endsWith(File.separator)) {
-            transferDir2Server(localFile, remoteFile, host, user);
-        } else {
-            transferFile2Server(localFile, remoteFile, host, user);
-        }
-    }
-
     @Override
     public Map<String, Object> compareFile(HostInfo hostInfo, FileInfo fileInfo) {
         logger.info("=====begin to compare file===== fileName:" + fileInfo.getSource());
@@ -352,9 +339,6 @@ public class FileServiceImpl implements FileService {
             List<FileInfo> fileInfos = fileInfoRepository.findByHostId(id);
             logger.info("file size :" + fileInfos.size());
             for (FileInfo fileInfo : fileInfos) {
-                //            int index = targetName.lastIndexOf(File.separator);
-//            String targetPath = targetName.substring(0, index);
-//            String fileName = targetName.substring(index+1);
                 String targetName = fileInfo.getTarget();
                 String localFile = basePath + targetName;
                 logger.info("begin to scp file to local,fileName: " + fileInfo.getTarget() + "; localFile: " + localFile);
@@ -481,10 +465,4 @@ public class FileServiceImpl implements FileService {
         return str;
     }
 
-    public static void main(String[] args) {
-        FileServiceImpl fileService = new FileServiceImpl();
-        String localFile = "dir/";
-        System.out.println(localFile.endsWith("/"));
-        System.out.println(localFile.substring(localFile.length() - 1).equals(File.separator));
-    }
 }

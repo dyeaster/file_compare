@@ -121,16 +121,6 @@ public class FileReaderUtils {
     }
 
 
-    public static String getFileName(String sourceFile) {
-        String[] arr = sourceFile.split(File.separator);
-//        System.out.println(arr);
-//        if (sourceFile.endsWith(File.separator)) {
-//            return arr[arr.length - 2];
-//        }
-        String fileName = arr[arr.length - 1];
-        return fileName;
-    }
-
     /**
      * 去除ini文件中的注释，以";"或"#"开头，顺便去除UTF-8等文件的BOM头
      *
@@ -151,6 +141,12 @@ public class FileReaderUtils {
         return result.trim();
     }
 
+    /**
+     * 读取ini文件并将结果存入map中
+     *
+     * @param filename 文件路径
+     * @return map key为section，value为section下的键值对
+     */
     public static Map<String, Map<String, String>> readIni(String filename) {
         Map<String, List<String>> listResult = new HashMap<>();
         Map<String, Map<String, String>> result = new HashMap<>();
@@ -215,8 +211,6 @@ public class FileReaderUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         //整理拆开name=value对，并存放到MAP中：
         //从listResult<String, List>中，看各个list中的元素是否包含等号“=”，如果包含，则拆开并放到Map中
         //整理后，把结果放进result<String, Object>中

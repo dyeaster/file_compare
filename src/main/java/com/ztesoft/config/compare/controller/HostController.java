@@ -97,12 +97,6 @@ public class HostController {
         return resultMap;
     }
 
-
-//    @RequestMapping(method = RequestMethod.PUT)
-//    public HostInfo update(@RequestBody HostInfo hostInfo) {
-//        return hostInfoRepository.save(hostInfo);
-//    }
-
     @RequestMapping(method = RequestMethod.GET)
     public Map<String, Object> find() {
         List<HostInfo> hostInfos = hostInfoRepository.findAll();

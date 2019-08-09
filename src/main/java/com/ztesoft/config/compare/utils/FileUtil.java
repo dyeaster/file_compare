@@ -13,30 +13,6 @@ public class FileUtil {
 
     private static String CHARSET = "UTF-8";
 
-    /**
-     * 根据服务器建立对应的文件夹
-     *
-     * @param hostInfo 服务器信息
-     * @return 文件夹路径
-     */
-    private static String makeLocalDir(HostInfo hostInfo) {
-        String hostip = hostInfo.getHostIp();
-//        是否需要在当前ip目录下创建当前日期的文件夹
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        System.out.println(dateFormat.format(calendar.getTime()));
-//        File basePath = new File("E:\\test\\");
-//        if(!basePath.exists()) {
-//            basePath.mkdirs();
-//        }
-        String targetPath = "E:\\Documents\\test\\" + hostInfo.getHostIp();
-        File targetDir = new File(targetPath);
-        System.out.println(targetPath);
-        if (!targetDir.exists()) {
-            targetDir.mkdirs();
-        }
-        return targetPath;
-    }
 
     public static String file2String(String fileName) {
         logger.info("=====file2String begin===== filename; " + fileName);
@@ -59,7 +35,7 @@ public class FileUtil {
             e.printStackTrace();
         }
         try {
-            return new String(fileContent, "UTF-8");
+            return new String(fileContent, CHARSET);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             logger.info("Unsupported Encoding: " + "UTF-8");
@@ -109,14 +85,14 @@ public class FileUtil {
             resultMap = mergeMap(tempMap, valueMap);
         }
         StringBuilder stringBuffer = new StringBuilder();
-        String fileName = fileInfo.getTarget().substring(fileInfo.getTarget().lastIndexOf(File.separator));
-        String tempPath = basePath + "tmp";
+        String fileName = fileInfo.getTarget().substring(fileInfo.getTarget().lastIndexOf(File.separator) + 1);
+        String tempPath = SysUtil.getTempPath();
         System.out.println("====================================TempPath: " + tempPath);
         File file = new File(tempPath);
         if (!file.exists()) {
             file.mkdirs();
         }
-        String FilePath = basePath + "tmp" + fileName;
+        String FilePath = tempPath + fileName;
 //        todo clear temp dir
 //        deleteDir(tempPath);
         for (Map.Entry<String, String> entry : resultMap.entrySet()) {
@@ -154,8 +130,8 @@ public class FileUtil {
 //            resultMap = mergeMap(tempMap, valueMap);
             resultMap = mergeIniMap(sourceMap, valueList);
         }
-        String fileName = fileInfo.getTarget().substring(fileInfo.getTarget().lastIndexOf(File.separator));
-        String tempPath = basePath + "tmp";
+        String fileName = fileInfo.getTarget().substring(fileInfo.getTarget().lastIndexOf(File.separator) + 1);
+        String tempPath = SysUtil.getTempPath();
 //        todo clear temp dir
 //        deleteDir(tempPath);
         System.out.println("====================================TempPath: " + tempPath);
@@ -163,7 +139,7 @@ public class FileUtil {
         if (!file.exists()) {
             file.mkdirs();
         }
-        String FilePath = basePath + "tmp" + fileName;
+        String FilePath = SysUtil.getTempPath() + fileName;
         generateIniFileByMap(resultMap, FilePath);
         logger.info("=====generateIniFile end===== fileName; " + FilePath);
         return FilePath;
@@ -188,7 +164,6 @@ public class FileUtil {
                 }
             }
         }
-//        print(sourceMap);
         return sourceMap;
     }
 

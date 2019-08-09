@@ -87,11 +87,5 @@
                 <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
             </properties>
         </profile>
-        <profile>
-            <id>custom1-compiler</id>
-            <properties>
-                <JAVA7_HOME>D:\Tools\Java\jdk1.7.0_80</JAVA7_HOME>
-            </properties>
-        </profile>
     </profiles>
 </project>

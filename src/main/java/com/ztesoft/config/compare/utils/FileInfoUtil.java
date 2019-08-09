@@ -31,7 +31,7 @@ public class FileInfoUtil {
         return Arrays.asList(exclude.split("\\|"));
     }
 
-    public static FileInfo deleteEndSeparator(FileInfo fileInfo) {
+    public static void deleteEndSeparator(FileInfo fileInfo) {
         String target = fileInfo.getTarget();
         String source = fileInfo.getSource();
         if (target.endsWith(File.separator)) {
@@ -40,6 +40,5 @@ public class FileInfoUtil {
         if (target.endsWith(File.separator)) {
             fileInfo.setSource(source.substring(0, source.length() - 1));
         }
-        return fileInfo;
     }
 }

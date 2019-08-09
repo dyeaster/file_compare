@@ -14,8 +14,6 @@ public interface FileService {
 
     Map<String, Object> syncFile2Server(FileInfo fileInfo);
 
-    void transfer2Server(String sourcePath, String targetPath, String hostIp, String user);
-
     Map<String, Object> compareFile(HostInfo hostInfo, FileInfo fileInfo);
 
     List<Map<String, Object>> collectFileById(Long id);

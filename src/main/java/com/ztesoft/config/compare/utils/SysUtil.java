@@ -10,6 +10,10 @@ public class SysUtil {
         return usrHome;
     }
 
+    public static String getTempPath() {
+        return getRootPath() + "tmp" + File.separator;
+    }
+
     public static String getPwd() {
         return System.getProperty("user.dir");
     }
