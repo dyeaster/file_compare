@@ -11,9 +11,9 @@
  * Project Config 项目增删改查，一个项目对应多台主机的配置文件，项目信息的维护
  * Server Config 服务器信息增删改查，配置对应项目下的服务器信息，固定信息(ip, port, user, password)，可选信息自行添加，此配置信息可用于替换配置文件中跟主机相关的特有信息
  * File Config 文件信息增删改查，配置文件信息，包括(源文件本机路径，目标文件路径，文件类型，是否为文件夹，对比方式，valueMap配置需要替换的字段)
- * File Compare(文件手机，对比差异展示，同步)
+ * File Compare(文件收集，对比差异展示，同步)
  
-## 工具架构
+### 工具架构
  * 前端 layui
  * 后台 springboot jpa 
  * 数据库 sqllite
