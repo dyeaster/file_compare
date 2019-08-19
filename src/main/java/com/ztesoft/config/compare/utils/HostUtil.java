@@ -1,7 +1,12 @@
 package com.ztesoft.config.compare.utils;
 
 import ch.ethz.ssh2.Connection;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ztesoft.config.compare.entity.HostDetail;
+import com.ztesoft.config.compare.entity.HostInfo;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;
@@ -34,6 +39,36 @@ public class HostUtil {
     }
 
 
+    public static Map<String, String> hostInfo2Map(HostInfo hostInfo) {
+        Map<String, String> map = new HashMap<>();
+        map.put("hostIp", hostInfo.getHostIp());
+        map.put("user", hostInfo.getUser());
+        map.put("port", String.valueOf(hostInfo.getPort()));
+        map.put("password", decryptDES(hostInfo.getPassword()));
+        map.put("hostId", String.valueOf(hostInfo.getHostId()));
+        String additionValue = hostInfo.getAdditionValue();
+        if (StringUtils.isEmpty(additionValue)) {
+            return map;
+        }
+        List<HostDetail> hostDetails = JSONObject.parseArray(additionValue, HostDetail.class);
+        for (HostDetail hostDetail : hostDetails) {
+            map.put(hostDetail.getKey(), hostDetail.getValue());
+        }
+        return map;
+    }
+
+    public static List<HostDetail> hostInfo2HostDetailList(HostInfo hostInfo) {
+        List<HostDetail> hostDetails = hostProp2HostDetails(hostInfo);
+        String additionValue = hostInfo.getAdditionValue();
+        if (StringUtils.isEmpty(additionValue) || "null".equals(additionValue)) {
+            return hostDetails;
+        }
+        List<HostDetail> tempList = JSONObject.parseArray(additionValue, HostDetail.class);
+        hostDetails.addAll(tempList);
+        return hostDetails;
+    }
+
+
     public static List<HostDetail> map2HostDetailList(Map<String, String> param, Long hostId) {
         List<HostDetail> hostDetails = new ArrayList<>();
         for (Map.Entry<String, String> entry : param.entrySet()) {
@@ -59,7 +94,45 @@ public class HostUtil {
         String user = param.get("user");
         String password = param.get("password");
         String port = param.get("port");
-        Connection connection = new Connection(hostIp);
+        Connection connection = null;
+        if (port == null) {
+            connection = new Connection(hostIp);
+        } else {
+            connection = new Connection(hostIp, Integer.parseInt(port));
+        }
+        try {
+            connection.connect();
+            System.out.println("开始登录");
+            System.out.println("ip: " + hostIp);
+            System.out.println("user: " + user);
+            System.out.println("password: " + password);
+            return connection.authenticateWithPassword(user, password);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("登录服务器失败！");
+            return false;
+        } finally {
+            connection.close();
+        }
+    }
+
+    /**
+     * 验证host是否能成功登录
+     *
+     * @param hostInfo
+     * @return
+     */
+    public static boolean checkHost(HostInfo hostInfo) {
+        String hostIp = hostInfo.getHostIp();
+        String user = hostInfo.getUser();
+        String password = hostInfo.getPassword();
+        Integer port = hostInfo.getPort();
+        Connection connection = null;
+        if (port == null) {
+            connection = new Connection(hostIp);
+        } else {
+            connection = new Connection(hostIp, port);
+        }
         try {
             connection.connect();
             System.out.println("开始登录");
@@ -144,11 +217,28 @@ public class HostUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        String a = "gdgdg";
-        String b = encryptDES(a);
-        System.out.println(b);
-        String c = decryptDES(b);
-        System.out.println(c);
 
     }
+
+    public static List<HostDetail> hostProp2HostDetails(HostInfo hostInfo) {
+        List<HostDetail> hostDetails = new ArrayList<>(4);
+        HostDetail hostDetail1 = new HostDetail();
+        hostDetail1.setKey("hostIp");
+        hostDetail1.setValue(hostInfo.getHostIp());
+        hostDetails.add(hostDetail1);
+        HostDetail hostDetail2 = new HostDetail();
+        hostDetail2.setKey("port");
+        hostDetail2.setValue(String.valueOf(hostInfo.getPort()));
+        hostDetails.add(hostDetail2);
+        HostDetail hostDetail3 = new HostDetail();
+        hostDetail3.setKey("user");
+        hostDetail3.setValue(hostInfo.getUser());
+        hostDetails.add(hostDetail3);
+        HostDetail hostDetail4 = new HostDetail();
+        hostDetail4.setKey("password");
+        hostDetail4.setValue(decryptDES(hostInfo.getPassword()));
+        hostDetails.add(hostDetail4);
+        return hostDetails;
+    }
+
 }

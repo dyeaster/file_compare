@@ -1,11 +1,13 @@
 package com.ztesoft.config.compare.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.ztesoft.config.compare.dto.ReplaceValue;
 import com.ztesoft.config.compare.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class FileUtil {
@@ -68,14 +70,15 @@ public class FileUtil {
      * @param fileInfo 文件信息
      * @param basePath 文件目录
      */
-    public static String generatePropertiesFile(FileInfo fileInfo, String basePath, List<HostDetail> hostDetails) {
+    public static String generatePropertiesFile(FileInfo fileInfo, String basePath, Map<String, String> hostMap) {
         logger.info("basePath: " + basePath);
         logger.info("=====begin to generate propertied file:" + fileInfo.getSource());
         logger.info("=====current method:" + fileInfo.getMethod());
         Map<String, String> sourceMap = DiffProperties.getPropertyMap(fileInfo.getSource());
         Map<String, String> targetMap = DiffProperties.getPropertyMap(basePath + fileInfo.getTarget());
-        Map<String, String> valueMap = getValueMapFromString(fileInfo, hostDetails);
+        Map<String, String> valueMap = getPropValueMapFromString(fileInfo, hostMap);
         Map<String, String> resultMap = new HashMap<>();
+        printMap(valueMap);
         if (fileInfo.getMethod() == 1) {
             logger.info("=====begin method 1 map merge:-----------------");
             resultMap = mergeMap(sourceMap, valueMap);
@@ -85,24 +88,22 @@ public class FileUtil {
             resultMap = mergeMap(tempMap, valueMap);
         }
         StringBuilder stringBuffer = new StringBuilder();
-        String fileName = fileInfo.getTarget().substring(fileInfo.getTarget().lastIndexOf(File.separator) + 1);
-        String tempPath = SysUtil.getTempPath();
-        System.out.println("====================================TempPath: " + tempPath);
-        File file = new File(tempPath);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        String FilePath = tempPath + fileName;
-//        todo clear temp dir
-//        deleteDir(tempPath);
+        String FilePath = getTempFilePath(basePath, fileInfo);
         for (Map.Entry<String, String> entry : resultMap.entrySet()) {
             stringBuffer.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
         }
         String content = stringBuffer.toString();
-        logger.info("=====file content: " + content);
-        fileName = writeContent2File(content, FilePath);
+//        logger.info("=====file content: " + content);
+        String fileName = writeContent2File(content, FilePath);
         logger.info("=====write properties file end===== fileName; " + fileName);
         return fileName;
+    }
+
+    private static void printMap(Map<String, String> valueMap) {
+        logger.info("begin to print value map : =========================");
+        for (Map.Entry<String, String> entry : valueMap.entrySet()) {
+            logger.info(entry.getKey() + "=======" + entry.getValue());
+        }
     }
 
     /**
@@ -112,26 +113,64 @@ public class FileUtil {
      * @param fileInfo 文件信息
      * @param basePath 文件目录
      */
-    public static String generateIniFile(FileInfo fileInfo, String basePath, List<HostDetail> hostDetails) {
+    public static String generateIniFile(FileInfo fileInfo, String basePath, Map<String, String> hostMap) {
         logger.info("basePath: " + basePath);
 
         logger.info("=====begin to generate propertied file:" + fileInfo.getSource());
         logger.info("=====current method:" + fileInfo.getMethod());
         Map<String, Map<String, String>> sourceMap = FileReaderUtils.readIni(fileInfo.getSource());
-        Map<String, String> targetMap = DiffProperties.getPropertyMap(basePath + fileInfo.getTarget());
-        List<Map<String, String>> valueList = getIniValueMapFromString(fileInfo, hostDetails);
+        Map<String, Map<String, String>> targetMap = FileReaderUtils.readIni(fileInfo.getTarget());
+        List<Map<String, String>> valueList = getIniValueMapFromString(fileInfo, hostMap);
         Map<String, Map<String, String>> resultMap = new HashMap<>();
         if (fileInfo.getMethod() == 1) {
             logger.info("=====begin method 1 map merge:-----------------");
             resultMap = mergeIniMap(sourceMap, valueList);
         } else if (fileInfo.getMethod() == 2) {
             logger.info("=====begin method 2 map merge:-----------------");
-//            Map<String, String> tempMap = mergeMap4Exist(sourceMap, targetMap);
-//            resultMap = mergeMap(tempMap, valueMap);
-            resultMap = mergeIniMap(sourceMap, valueList);
+            Map<String, Map<String, String>> tempMap = mergeIniMap4Exists(sourceMap, targetMap);
+            resultMap = mergeIniMap(tempMap, valueList);
         }
-        String fileName = fileInfo.getTarget().substring(fileInfo.getTarget().lastIndexOf(File.separator) + 1);
-        String tempPath = SysUtil.getTempPath();
+        String FilePath = getTempFilePath(basePath, fileInfo);
+        generateIniFileByMap(resultMap, FilePath);
+        logger.info("=====generateIniFile end===== fileName; " + FilePath);
+        return FilePath;
+    }
+
+    private static Map<String, Map<String, String>> mergeIniMap4Exists(Map<String, Map<String, String>> sourceMap, Map<String, Map<String, String>> targetMap) {
+        Map<String, Map<String, String>> result = new HashMap<>();
+        Set<String> totalSet = new HashSet<>();
+        totalSet.addAll(sourceMap.keySet());
+        totalSet.addAll(targetMap.keySet());
+        for (String key : totalSet) {
+            if (sourceMap.containsKey(key) && !targetMap.containsKey(key)) {
+                result.put(key, sourceMap.get(key));
+            } else if (sourceMap.containsKey(key) && targetMap.containsKey(key)) {
+                Map<String, String> sourceTemp = sourceMap.get(key);
+                Map<String, String> targetTemp = targetMap.get(key);
+                Set<String> tempSet = new HashSet<>();
+                tempSet.addAll(sourceTemp.keySet());
+                tempSet.addAll(targetTemp.keySet());
+                for (String tempKey : tempSet) {
+                    if (sourceTemp.containsKey(tempKey) && !targetTemp.containsKey(tempKey)) {
+                        targetMap.put(tempKey, sourceMap.get(tempKey));
+                    }
+                }
+                result.put(key, targetTemp);
+            } else {
+                result.put(key, targetMap.get(key));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 根据文件信息，创建临时文件父目录，返回临时文件路径
+     *
+     * @param fileInfo 文件信息
+     * @return 临时文件路径
+     */
+    private static String getTempFilePath(String basePath, FileInfo fileInfo) {
+        String tempPath = basePath + "tmp" + File.separator;
 //        todo clear temp dir
 //        deleteDir(tempPath);
         System.out.println("====================================TempPath: " + tempPath);
@@ -139,14 +178,12 @@ public class FileUtil {
         if (!file.exists()) {
             file.mkdirs();
         }
-        String FilePath = SysUtil.getTempPath() + fileName;
-        generateIniFileByMap(resultMap, FilePath);
-        logger.info("=====generateIniFile end===== fileName; " + FilePath);
-        return FilePath;
+        String fileName = fileInfo.getTarget().substring(fileInfo.getTarget().lastIndexOf(File.separator) + 1);
+        return tempPath + fileName;
     }
 
     private static Map<String, Map<String, String>> mergeIniMap(Map<String, Map<String, String>> sourceMap, List<Map<String, String>> valueList) {
-        if (valueList.size() == 0) {
+        if (valueList == null || valueList.size() == 0) {
             return sourceMap;
         }
         for (Map<String, String> map : valueList) {
@@ -205,7 +242,7 @@ public class FileUtil {
      * @return 结果map
      */
     private static Map<String, String> mergeMap(Map<String, String> sourceMap, Map<String, String> valueMap) {
-        if (valueMap.size() == 0) {
+        if (valueMap == null || valueMap.size() == 0) {
             return sourceMap;
         }
         for (Map.Entry<String, String> entry : valueMap.entrySet()) {
@@ -213,63 +250,50 @@ public class FileUtil {
             String value = entry.getValue();
             System.out.println("valueMap的键值对：" + key + "-----------" + value);
             if (sourceMap.containsKey(key) && value != null) {
-                System.out.println("替换的键和值：" + key + "=====" + value);
+                logger.info("替换的键和值：" + key + "=====" + sourceMap.get(key) + "，替换后的值：" + value);
                 sourceMap.put(key, value);
             }
         }
         return sourceMap;
     }
 
-    private static Map<String, String> getValueMapFromString(FileInfo fileInfo, List<HostDetail> hostDetails) {
+    private static Map<String, String> getPropValueMapFromString(FileInfo fileInfo, Map<String, String> hostMap) {
         String str = fileInfo.getValueMap();
+        if (StringUtils.isEmpty(str)) {
+            return null;
+        }
+        List<ReplaceValue> replaceValues = JSON.parseArray(str, ReplaceValue.class);
         Map<String, String> valueMap = new HashMap<>();
-        if (str.length() == 0) {
-            return valueMap;
-        }
-        String[] strArr = str.split("\\|");
-        for (String s : strArr) {
-            if (s.length() == 0 || !s.contains("=")) {
-                break;
-            }
-            String[] temp = s.split("=");
-            for (HostDetail hostDetail : hostDetails) {
-                if (temp[1].equalsIgnoreCase(hostDetail.getKey())) {
-                    valueMap.put(temp[0], hostDetail.getValue());
-                    break;
-                }
+
+        for (ReplaceValue replaceValue : replaceValues) {
+            String attrName = replaceValue.getAttrName();
+            if (hostMap.containsKey(attrName)) {
+                valueMap.put(replaceValue.getKey(), hostMap.get(attrName));
             }
         }
-//        System.out.println("valueMap size: " +valueMap.size());
-//        for (String string : valueMap.keySet()) {
-//            System.out.println("键值对：" + string + "-----" + valueMap.get(string));
-//        }
+        logger.info("valueMap size: " + valueMap.size());
+        for (String string : valueMap.keySet()) {
+            logger.info("键值对：" + string + "-----" + valueMap.get(string));
+        }
         return valueMap;
     }
 
-    private static List<Map<String, String>> getIniValueMapFromString(FileInfo fileInfo, List<HostDetail> hostDetails) {
+    private static List<Map<String, String>> getIniValueMapFromString(FileInfo fileInfo, Map<String, String> hostMap) {
         String str = fileInfo.getValueMap();
-        String[] strArr = str.split("\\|");
-        List<Map<String, String>> tempList = new ArrayList<>(strArr.length);
-        if (str.length() == 0) {
-            return tempList;
+        if (StringUtils.isEmpty(str)) {
+            return null;
         }
-        for (String s : strArr) {
-            if (s.length() == 0 || !s.contains("=")) {
-                break;
-            }
-            String[] temp = s.split("=");
-            String t1 = temp[0];
-            String sectionName = t1.substring(t1.lastIndexOf("[") + 1, t1.indexOf(']'));
-            String key = t1.substring(t1.indexOf(']') + 2);
-            String valueName = temp[1];
+        List<ReplaceValue> replaceValues = JSON.parseArray(str, ReplaceValue.class);
+        List<Map<String, String>> tempList = new ArrayList<>(replaceValues.size());
+
+        for (ReplaceValue replaceValue : replaceValues) {
+            String attrName = replaceValue.getAttrName();
             Map<String, String> map = new HashMap<>();
-            for (HostDetail hostDetail : hostDetails) {
-                if (valueName.equalsIgnoreCase(hostDetail.getKey())) {
-                    map.put("sectionName", sectionName);
-                    map.put("key", key);
-                    map.put("value", hostDetail.getValue());
-                    tempList.add(map);
-                }
+            if (hostMap.containsKey(attrName)) {
+                map.put("sectionName", replaceValue.getSectionName());
+                map.put("key", replaceValue.getKey());
+                map.put("value", hostMap.get(attrName));
+                tempList.add(map);
             }
         }
 //        for (Map<String, String> map : tempList) {
@@ -404,48 +428,18 @@ public class FileUtil {
     }
 
     public static void main(String[] args) throws IOException {
-////        String target = "E:\\Documents\\test\\127.0.0.1\\system.cfg";
-//        String target = "E:\\Documents\\test\\127.0.0.1\\itcom.ini";
-//        Map<String, Map<String, String>> map = FileReaderUtils.readIni(target);
-////        map.put("connect_url","111");
-////        map.put("connect_user","222");
-////        map.put("spring.host.port","8888");
-////        map.put("4","444");
-//        String filename = "E:\\Documents\\test\\127.0.0.1\\111.txt";
-////        File file = new File("E:\\Documents\\test\\127.0.0.1\\111.txt");
-////        generatePropertiesFile(map,filename);
-//        generateIniFile(map, filename);
-//        String fileName = "\\home\\wyx\\target\\itemoc.ini";
-//        fileName = fileName.substring(fileName.lastIndexOf(File.separator));
-//        System.out.println(fileName);
-
-
-//        String s = "test111=sss";
-//        String[] temp = s.split("\\|");
-//        System.out.println(temp.length);
-//        System.out.println(temp[0]);
-
 //        FileInfo fileInfo = new FileInfo();
-//        fileInfo.setValueMap("[wuyaxiong].test=port");
-//        HostDetail hostDetail = new HostDetail();
-//        hostDetail.setKey("port");
-//        hostDetail.setValue("8080");
-//        HostDetail hostDetail1 = new HostDetail();
-//        hostDetail1.setKey("hostIp");
-//        hostDetail1.setValue("127.0.0.1");
-//        List<HostDetail> hostDetails = new ArrayList<>();
-//        hostDetails.add(hostDetail);
-//        hostDetails.add(hostDetail1);
-//        List<Map<String, String>> list = getIniValueMapFromString(fileInfo, hostDetails);
-//        for (Map<String, String> map : list) {
-//            System.out.println(map.get("sectionName"));
-//            System.out.println(map.get("key"));
-//            System.out.println(map.get("value"));
-//
-//        }
-        deleteDir("E:\\Documents\\test");
-        String name = "E:\\Documents\\test\\1111.txt";
-        File file = new File(name);
-        System.out.println(file.getParent());
+//        fileInfo.setTarget("C:\\Users\\wuyaxiong\\Documents\\targetimp.ini");
+//        fileInfo.setSource("C:\\Users\\wuyaxiong\\Documents\\sourceimp.ini");
+//        fileInfo.setMethod(2);
+//        fileInfo.setValueMap("[KPI].Path=port");
+//        Map<String,String> hostmap = new HashMap<>();
+//        hostmap.put("port","8888");
+//        String basepath = "C:\\Users\\wuyaxiong\\Downloads";
+//        generateIniFile(fileInfo,basepath,hostmap);
+
+//        String a = "[{fdsgsgd}]";
+//        System.out.println(a.startsWith("[{") && a.endsWith("}]"));
+
     }
 }

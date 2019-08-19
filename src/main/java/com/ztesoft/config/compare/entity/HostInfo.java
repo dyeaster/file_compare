@@ -14,4 +14,8 @@ public class HostInfo {
     private Long hostId;
     private String hostIp;
     private Long projectId;
+    private Integer port;
+    private String user;
+    private String password;
+    private String additionValue;
 }

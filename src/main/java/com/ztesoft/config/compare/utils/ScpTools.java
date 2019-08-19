@@ -171,7 +171,19 @@ public class ScpTools {
         String remotePath = target.substring(0, target.lastIndexOf("/"));
         String bakName = target.substring(target.lastIndexOf("/") + 1);
 //        bak.`date +%y%m%d`.tar.gz
-        String cmd = "cd " + remotePath + "; tar -zcf " + bakName + "-`date +%Y%m%d%H%M%S`.bak " + bakName + ";";
+        String cmd = "cd " + remotePath + "; cp " + bakName + " " + bakName + "_`date +%Y%m%d%H%M%S`.bak " + ";";
+        System.out.println("backupfile cmd: " + cmd);
+        String[] temp = executeCmd(cmd, connection);
+        return temp[2];
+    }
+
+    public static String backupDir(String target, Connection connection) {
+        logger.info("ScpTools.backupDir:" + target);
+        String remotePath = target.substring(0, target.lastIndexOf("/"));
+        String bakName = target.substring(target.lastIndexOf("/") + 1);
+//        bak.`date +%y%m%d`.tar.gz
+        String cmd = "cd " + remotePath + "; tar -zcf " + bakName + "_`date +%Y%m%d%H%M%S`.tar.gz " + bakName + ";";
+        logger.info("backupDir cmd: " + cmd);
         String[] temp = executeCmd(cmd, connection);
         return temp[2];
     }
@@ -261,7 +273,7 @@ public class ScpTools {
         try {
             scpClient = new SCPClient(connection);
 //            备份目录
-            ScpTools.backupFile(fileInfo.getTarget(), connection);
+            ScpTools.backupDir(fileInfo.getTarget(), connection);
 
             String sourceDir = fileInfo.getSource();
             File source = new File(sourceDir);
@@ -312,6 +324,7 @@ public class ScpTools {
      */
     public static String[] executeCmd(String cmd, Connection conn) {
         System.out.println("begin to execute command");
+        System.out.println("command: " + cmd);
         InputStream stdOut = null;
         InputStream stdErr = null;
         String outStr = "";

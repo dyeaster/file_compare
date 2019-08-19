@@ -6,7 +6,7 @@ import java.io.File;
 
 public class SysUtil {
     public static String getRootPath() {
-        String usrHome = System.getProperty("user.home") + File.separator + "filecompare" + File.separator + "data" + File.separator;
+        String usrHome = getPwd() + File.separator + "data" + File.separator;
         return usrHome;
     }
 

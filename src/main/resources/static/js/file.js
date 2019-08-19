@@ -1,3 +1,38 @@
+//准备视图对象
+window.viewObj = {
+    tbData: [{
+        tempId: new Date().valueOf(),
+        sectionName: '',
+        key: 'myport',
+        attrName: 'port',
+        state: 1
+    }],
+    hostData: [],
+    renderSelectOptions: function (data, settings) {
+        settings = settings || {};
+        var valueField = settings.valueField || 'value',
+            textField = settings.textField || 'text',
+            selectedValue = settings.selectedValue || "";
+        var html = [];
+        for (var i = 0, item; i < data.length; i++) {
+            item = data[i];
+            html.push('<option value="');
+            html.push(item[valueField]);
+            html.push('"');
+            if (selectedValue && item[valueField] == selectedValue) {
+                html.push(' selected="selected"');
+            }
+            html.push('>');
+            html.push(item[textField]);
+            html.push('</option>');
+        }
+        return html.join('');
+    },
+    reloadReplaceTable: function (data) {
+
+    }
+};
+
 layui.use(['table', 'form'], function () {
     var table = layui.table;
     var form = layui.form;
@@ -6,18 +41,63 @@ layui.use(['table', 'form'], function () {
     var $ = layui.$;
     var projectId = "";
     var hostId = "";
-    // 文件的值替换列表 todo
-    var valueList = [];
+    var hostData = [];
+    var replaceValue = [];
+
+
+    var tbWidth = $("#tableRes").width();
+    var layTableId = "layTable";
+
+    function reloadReplaceTable(data) {
+        var temp = table.render({
+            elem: '#dataTable',
+            id: layTableId,
+            data: [],
+            width: tbWidth,
+            page: true,
+            loading: true,
+            even: false, //不开启隔行背景
+            cols: [[
+                // {title: '序号', type: 'numbers'},
+                {field: 'sectionName', title: 'Section', edit: 'text'},
+                {field: 'key', title: 'Key', edit: 'text'},
+                {
+                    field: 'attrName', title: 'Attr Name', templet: function (d) {
+                        var options = viewObj.renderSelectOptions(hostData, {
+                            valueField: "key",
+                            textField: "key",
+                            selectedValue: d.attrName
+                        });
+                        return '<a lay-event="type"></a><select name="type" lay-filter="type"><option value="">Please select</option>' + options + '</select>';
+                    }
+                },
+                {
+                    field: 'tempId', title: 'Action', width: 70, templet: function (d) {
+                        return '<a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="del" lay-id="' + d.tempId + '"><i class="layui-icon layui-icon-delete"></i></a>';
+                    }
+                }
+            ]],
+            done: function (res, curr, count) {
+                viewObj.tbData = res.data;
+            }
+        });
+        return temp;
+    }
+
+    var tableIns = reloadReplaceTable();
+
+
     //第一个实例
     table.render({
         elem: '.js-file-grid'
         , id: "fileTable"
+        , data: []
         // ,cellMinWidth: 80
         // , url: '/file'
         , height: 'full - 100'
         // , even: true
         , cols: [[
-            {field: 'fileId', title: 'File ID', hide: false}
+            {field: 'fileId', title: 'File ID', hide: true}
             , {field: 'source', title: 'Source'}
             , {field: 'target', title: 'Target'}
             , {
@@ -59,9 +139,7 @@ layui.use(['table', 'form'], function () {
                     return d.exclude;
                 }
             }
-            , {field: 'valueMap', title: 'Value Map'}
-            // , {title: 'Value Map', toolbar: '#barDemo'}
-            // , {field: 'comments', title: 'Remarks'}
+            , {field: 'valueMap', title: 'Value Map', hide: true}
         ]]
         , page: true
         , response: {
@@ -78,195 +156,79 @@ layui.use(['table', 'form'], function () {
             };
         }
     });
-    //监听行工具事件
-    table.on('tool(test)', function (obj) {
-        var data = obj.data;
-        if (obj.event === 'showDetail') {
+    //激活事件
+    var activeByType = function (type, arg) {
+        if (arguments.length === 2) {
+            active[type] ? active[type].call(this, arg) : '';
+        } else {
+            active[type] ? active[type].call(this) : '';
+        }
+    };
+    //注册按钮事件
+    $('.layui-btn[data-type]').on('click', function () {
+        var type = $(this).data('type');
+        activeByType(type);
+    });
+    //监听select下拉选中事件
+    form.on('select(type)', function (data) {
+        var elem = data.elem; //得到select原始DOM对象
+        $(elem).prev("a[lay-event='type']").trigger("click");
+    });
 
+    table.on('tool(dataTable)', function (obj) {
+        var data = obj.data, event = obj.event, tr = obj.tr; //获得当前行 tr 的DOM对象;
+        console.log(data);
+        switch (event) {
+            case "type":
+                //console.log(data);
+                var select = tr.find("select[name='type']");
+                if (select) {
+                    var selectedVal = select.val();
+                    if (!selectedVal) {
+                        layer.tips("请选择一个分类", select.next('.layui-form-select'), {tips: [3, '#FF5722']}); //吸附提示
+                    }
+                    $.extend(obj.data, {'attrName': selectedVal});
+                    activeByType('updateRow', obj.data);	//更新行记录对象
+                }
+                break;
+            case "del":
+                // layer.confirm('真的删除行么？', function (index) {
+                    obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                    // layer.close(index);
+                    activeByType('removeEmptyTableCache');
+                // });
+                break;
         }
     });
+
+
     renderProjectSelect();
     // renderHostSelect();
-
-    var curServer = {};
-    table.on('row(file-table)', function (obj) {
-        // form.val("js-host-form", {});
-        var data = obj.data;
-        $('.js-confirm-btn').hide();
-        $('.js-function-btn').show();
-        clearFormData();
-        setInputDisplay(data.dirFlag);
-        disableFormInput(true);
-        // layer.alert(JSON.stringify(data), {
-        //     title: '当前行数据：'
-        // });
-        form.val("js-file-form", data);
-        curServer = data;
-        //标注选中样式
-        obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
-    });
-    form.verify({
-        filepath: function(value, item){ //value：表单的值、item：表单的DOM对象
-            if(!value || value.length === 0){
-                return 'The required input should not be null';
-            }
-            if(!new RegExp("^/").test(value)){
-                return 'FilePath should begin with / ';
-            }
-        }
-    });
-    form.on('submit(file-submit)', function (data) {
-        var param = data.field;
-        if (!hostId) {
-            layer.msg("Please select host first", {icon: 5, offset: 't'});
-            return;
-        }
-        param.hostId = hostId;
-        // var valueMap = getValueMap();
-        // return false;
-        $.ajax({
-            url: "/file",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(param),
-            dataType: "json",
-            success: function (data) {
-                if (data && data.fileId) {
-                    console.log(data);
-                    form.val("js-file-form", data);
-                    reloadTable();
-                    disableFormInput(false);
-                    $('.js-confirm-btn').hide();
-                    $('.js-function-btn').show();
-                }
-            }
-        });
-        return false;
-    });
-
-    // 获取所有的key-value的值
-    function getValueMap() {
-        var list = [];
-        var list2 = [];
-        var list3 = [];
-        $(".js-key-value-div").each(function () {
-            console.log(this);
-            console.log($(this));
-            var k = this.getElementsByClassName("js-key-input")[0].val();
-            var v = this.getElementsByClassName("js-value-input")[0].val();
-            list.push(k + "=" + v);
-        });
-        $(".js-key-input").each(function () {
-            var k = $(this).val();
-            list2.push(k);
-        });
-        $(".js-value-input").each(function () {
-            var k = $(this).val();
-            list3.push(k);
-        });
-        console.log(list2);
-        return list;
-    }
-
-    function setInputDisplay(dirFlag) {
-        if (dirFlag == 1) {
-            $('.js-file-input-div').hide();
-            $('.js-dir-input-div').show();
-            $('input[name=type]').val('');
-            $('input[name=valueMap]').val('');
-        } else if (dirFlag == 0) {
-            $('.js-dir-input-div').hide();
-            $('.js-file-input-div').show();
-            $('input[name=exclude]').val('');
-        }
-    }
-
-    form.on('select(host-sel)', function (data) {
-        hostId = data.value;
-        if (!hostId) {
-            return;
-        }
-        clearFormData();
-        $('input[name=hostId]').val(hostId);
-        reloadTable();
-        $.ajax({
-            url: "/host/4file/" + hostId,
-            type: "GET",
-            success: function (result) {
-                valueList = result || [];
-                console.log(valueList);
-            }
-        });
-    });
-
-    form.on('select(dir-select)', function (data) {
-        if (!data.value) {
-            return;
-        }
-        // clearFormData();
-        setInputDisplay(data.value);
-    });
-    form.on('select(type-sel)', function (data) {
-        if (!data.value) {
-            $('input[name=valueMap]').attr('placeholder','');
-            return;
-        }
-        if (data.value == 1) {
-            $('input[name=valueMap]').parent().parent().show();
-            $('input[name=valueMap]').attr('placeholder','separate with | eg: key1=value1|key2=value2');
-        } else if (data.value == 2) {
-            $('input[name=valueMap]').parent().parent().show();
-            $('input[name=valueMap]').attr('placeholder','separate with | eg: [section1].key1=value1|[section].key2=value2');
-        } else {
-            $('input[name=valueMap]').parent().parent().hide();
-            $('input[name=valueMap]').val('');
-        }
-    });
-
-    function renderHostSelect() {
-        $.ajax({
-            url: "/host/project/" + projectId,
-            type: "GET",
-            dataType: "json",
-            success: function (result) {
-                var list = result.item || [];    //返回的数据
-                var hostDom = document.getElementById("host"); //server为select定义的id
-                $('#host').empty();
-                if (list.length === 0) {
-                    layer.msg("Host has not configured, please add host first.", {offset: 't'});
-                    return;
-                }
-                hostId = list[0].hostId;
-                $.each(list, function (index, item) {
-                    var option = document.createElement("option");  // 创建添加option属性
-                    option.setAttribute("value", item.hostId); // 给option的value添加值
-                    option.innerText = item.hostIp;     // 打印option对应的纯文本
-                    hostDom.appendChild(option);           //给select添加option子标签
-                });
-                $('#host').val(hostId);
-                form.render("select");
-                reloadTable(hostId);
-            }
-        });
-        // 绑定host下拉框选择事件
-        // form.on('select(host-sel)', function (data) {
-        //     hostId = data.value;
-        //     if (!hostId) {
-        //         return;
-        //     }
-        //     clearFormData();
-        //     $('input[name=hostId]').val(hostId);
-        //     reloadTable();
-        //     $.ajax({
-        //         url: "/host/4file/" + hostId,
-        //         type: "GET",
-        //         success: function (result) {
-        //             valueList = result || [];
-        //             console.log(valueList);
+    var rootObj = {
+        // renderSelectOptions: function (data, settings) {
+        //     settings = settings || {};
+        //     var valueField = settings.valueField || 'value',
+        //         textField = settings.textField || 'text',
+        //         selectedValue = settings.selectedValue || "";
+        //     var html = [];
+        //     for (var i = 0, item; i < data.length; i++) {
+        //         item = data[i];
+        //         html.push('<option value="');
+        //         html.push(item[valueField]);
+        //         html.push('"');
+        //         if (selectedValue && item[valueField] == selectedValue) {
+        //             html.push(' selected="selected"');
         //         }
-        //     });
-        // });
-    }
+        //         html.push('>');
+        //         html.push(item[textField]);
+        //         html.push('</option>');
+        //     }
+        //     return html.join('');
+        // },
+        renderProjectSelect: function (id) {
+
+        }
+    };
 
     function renderProjectSelect(id) {
         $.ajax({
@@ -323,9 +285,208 @@ layui.use(['table', 'form'], function () {
                     $('#host').val(hostId);
                     form.render("select");
                     reloadTable(hostId);
+                    getHostData();
                 }
             });
         });
+    }
+
+    var curServer = {};
+    table.on('row(file-table)', function (obj) {
+        // form.val("js-host-form", {});
+        var data = obj.data;
+        $('.js-confirm-btn').hide();
+        $('.js-function-btn').show();
+        clearFormData();
+        setInputDisplay(data.dirFlag);
+        disableFormInput(true);
+        // layer.alert(JSON.stringify(data), {
+        //     title: '当前行数据：'
+        // });
+        form.val("js-file-form", data);
+        curServer = data;
+        var temp = data.replaceList || [];
+        if (temp.length > 0) {
+            $.each(temp, function (index, item) {
+                item.tempId = new Date().valueOf();
+            });
+        }
+        // todo
+        tableIns.reload({
+            data: temp
+        });
+        //标注选中样式
+        obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+    });
+    form.verify({
+        filepath: function (value, item) { //value：表单的值、item：表单的DOM对象
+            if (!value || value.length === 0) {
+                return 'The required input should not be null';
+            }
+            if (!new RegExp("^/").test(value)) {
+                return 'FilePath should begin with / ';
+            }
+        }
+    });
+    function validateValueMap(data,type) {
+        if(data.length ===0) {
+            return true;
+        }
+        for(var i = 0;i< data.length ;i++) {
+            if(!data[i].key || !data[i].attrName || (type ==='2' && !data[i].sectionName)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    form.on('submit(file-submit)', function (data) {
+        var param = data.field;
+        if (!hostId) {
+            layer.msg("Please select host first", {icon: 5, offset: 't'});
+            return;
+        }
+        param.hostId = hostId;
+
+        var oldData = table.cache[layTableId] || [];
+        if ((param.type === '1' || param.type === '2') && oldData.length > 0) {
+            if(param.type === '2' && !validateValueMap(oldData, param.type)) {
+                layer.msg("The section, attr name and attr value should not be null", {offset: 't'});
+                return ;
+            }
+            if(param.type === '1' && !validateValueMap(oldData, param.type)) {
+                layer.msg("The attr name and attr value should not be null", {offset: 't'});
+                return ;
+            }
+            param.replaceList = oldData;
+        }
+        $.ajax({
+            url: "/file",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(param),
+            dataType: "json",
+            success: function (data) {
+                if (data && data.fileId) {
+                    console.log(data);
+                    form.val("js-file-form", data);
+                    reloadTable();
+                    disableFormInput(false);
+                    $('.js-confirm-btn').hide();
+                    $('.js-function-btn').show();
+                    if (param.fileId.length !== 0) {
+                        layer.msg("Modify file success .", {icon: 6, offset: 't'});
+                        return;
+                    }
+                    layer.msg("Add file success .", {icon: 6, offset: 't'});
+                }
+            }
+        });
+        return false;
+    });
+
+    function setInputDisplay(dirFlag) {
+        if (dirFlag == 1) {
+            $('.js-file-input-div').hide();
+            $('.js-dir-input-div').show();
+            $('input[name=type]').val('');
+            $('input[name=valueMap]').val('');
+        } else if (dirFlag == 0) {
+            $('.js-dir-input-div').hide();
+            $('.js-file-input-div').show();
+            $('input[name=exclude]').val('');
+        }
+    }
+
+    form.on('select(host-sel)', function (data) {
+        hostId = data.value;
+        if (!hostId) {
+            return;
+        }
+        clearFormData();
+        $('input[name=hostId]').val(hostId);
+        reloadTable();
+        getHostData();
+    });
+
+    function getHostData() {
+        $.ajax({
+            url: "/host/4file/" + hostId,
+            type: "GET",
+            success: function (result) {
+                hostData = result || [];
+                console.log(hostData);
+                tableIns = reloadReplaceTable(hostData);
+            }
+        });
+    }
+    form.on('select(dir-select)', function (data) {
+        if (!data.value) {
+            return;
+        }
+        // clearFormData();
+        setInputDisplay(data.value);
+    });
+    form.on('select(type-sel)', function (data) {
+        if (!data.value) {
+            $('input[name=valueMap]').attr('placeholder', '');
+            return;
+        }
+        if (data.value == 1) {
+            $('input[name=valueMap]').parent().parent().show();
+            $('input[name=valueMap]').attr('placeholder', 'separate with | eg: key1=value1|key2=value2');
+        } else if (data.value == 2) {
+            $('input[name=valueMap]').parent().parent().show();
+            $('input[name=valueMap]').attr('placeholder', 'separate with | eg: [section1].key1=value1|[section].key2=value2');
+        } else {
+            $('input[name=valueMap]').parent().parent().hide();
+            $('input[name=valueMap]').val('');
+        }
+    });
+
+    function renderHostSelect() {
+        $.ajax({
+            url: "/host/project/" + projectId,
+            type: "GET",
+            dataType: "json",
+            success: function (result) {
+                var list = result.item || [];    //返回的数据
+                var hostDom = document.getElementById("host"); //server为select定义的id
+                $('#host').empty();
+                if (list.length === 0) {
+                    layer.msg("Host has not configured, please add host first.", {offset: 't'});
+                    return;
+                }
+                hostId = list[0].hostId;
+                $.each(list, function (index, item) {
+                    var option = document.createElement("option");  // 创建添加option属性
+                    option.setAttribute("value", item.hostId); // 给option的value添加值
+                    option.innerText = item.hostIp;     // 打印option对应的纯文本
+                    hostDom.appendChild(option);           //给select添加option子标签
+                });
+                $('#host').val(hostId);
+                form.render("select");
+                reloadTable(hostId);
+                getHostData();
+            }
+        });
+        // 绑定host下拉框选择事件
+        // form.on('select(host-sel)', function (data) {
+        //     hostId = data.value;
+        //     if (!hostId) {
+        //         return;
+        //     }
+        //     clearFormData();
+        //     $('input[name=hostId]').val(hostId);
+        //     reloadTable();
+        //     $.ajax({
+        //         url: "/host/4file/" + hostId,
+        //         type: "GET",
+        //         success: function (result) {
+        //             valueList = result || [];
+        //             console.log(valueList);
+        //         }
+        //     });
+        // });
     }
 
     function disableFormInput(flag) {
@@ -344,53 +505,58 @@ layui.use(['table', 'form'], function () {
     }
 
     var active = {
-        onAddReplace: function () {
-            return;
-            // FieldCount++; //text box added increment
-            //add input box
-            var options = '';
-            $.each(valueList, function (index, item) {
-                options += '<option value=""' + item.key + '">' + item.key + '</option>\n';
+        addRow: function () {	//添加一行
+            var oldData = table.cache[layTableId];
+            console.log(oldData);
+            var newRow = {tempId: new Date().valueOf(), sectionName: null, key: '', attrName: ''};
+            oldData.push(newRow);
+            tableIns.reload({
+                data: oldData
             });
-            // console.log(options);
-            $('.js-key-value-parent-div').append(
-                '<div class="layui-col-md12 js-key-value-div">'
-                + '    <div class="layui-col-md6">'
-                + '        <div class="layui-form-item">'
-                + '            <label class="layui-form-label">Replace key</label>'
-                + '            <div class="layui-input-block">'
-                + '                <input type="text" name="comments" autocomplete="off" placeholder=""'
-                + '                class="layui-input js-key-input">'
-                + '            </div>'
-                + '        </div>'
-                + '    </div>'
-                + '    <div class="layui-col-md5">'
-                + '        <div class="layui-form-item">'
-                + '            <label class="layui-form-label">Replace value</label>'
-                + '            <div class="layui-input-block">'
-                + '                <select autocomplete="off" placeholder="" class="js-value-input"'
-                + '                lay-filter="value-select">'
-                + options
-                + '                </select>'
-                + '            </div>'
-                + '        </div>'
-                + '    </div>'
-                + '    <div class="layui-col-md1 js-delete-value" style="text-align:right;padding-right:10px">'
-                + '        <button type="button" class="layui-btn" title="delete replace value" data-type="onAddReplace">\n'
-                + '              <i class="layui-icon layui-icon-close" lay-filter="deleteValue"></i></button>'
-                + '    </div>'
-                + '</div>'
-            );
-            form.render('select');
+        },
+        updateRow: function (obj) {
+            var oldData = table.cache[layTableId];
+            for (var i = 0, row; i < oldData.length; i++) {
+                row = oldData[i];
+                if (row.tempId == obj.tempId) {
+                    $.extend(oldData[i], obj);
+                    return;
+                }
+            }
+            tableIns.reload({
+                data: oldData
+            });
+        },
+        removeEmptyTableCache: function () {
+            var oldData = table.cache[layTableId];
+            for (var i = 0, row; i < oldData.length; i++) {
+                row = oldData[i];
+                if (!row || !row.tempId) {
+                    oldData.splice(i, 1);    //删除一项
+                }
+                continue;
+            }
+            tableIns.reload({
+                data: oldData
+            });
+        },
+        save: function () {
+            var oldData = table.cache[layTableId];
+            console.log(oldData);
+            for (var i = 0, row; i < oldData.length; i++) {
+                row = oldData[i];
+                if (!row.type) {
+                    layer.msg("检查每一行，请选择分类！", {icon: 5}); //提示
+                    return;
+                }
+            }
+            document.getElementById("jsonResult").innerHTML = JSON.stringify(table.cache[layTableId], null, 2);	//使用JSON.stringify() 格式化输出JSON字符串
         },
         onNewClick: function () {
             clearFormData();
             disableFormInput(false);
             $('.js-confirm-btn').show();
             $('.js-function-btn').hide();
-        },
-        deleteValue: function () {
-            console.log("delete");
         },
         onEditClick: function () {
             disableFormInput(false);
@@ -433,12 +599,6 @@ layui.use(['table', 'form'], function () {
     $('.js-layui-btn').on('click', function () {
         var type = $(this).data('type');
         active[type] ? active[type].call(this) : '';
-    });
-
-
-    $(".js-key-value-parent-div").on("click", ".js-delete-value", function () {
-        $(this).parent().remove();
-        console.log("11111");
     });
 
     function getFormData() {

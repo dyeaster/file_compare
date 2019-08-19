@@ -72,7 +72,7 @@ layui.use(['table', 'form'], function () {
         // });
         clearFormData();
         form.val("js-host-form", data);
-        multiSelect.render();
+        // multiSelect.render();
         curServer = data;
         //标注选中样式
         obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');

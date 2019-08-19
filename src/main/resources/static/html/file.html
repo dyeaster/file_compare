@@ -15,6 +15,38 @@
         body {
             padding: 0 20px;
         }
+
+        /*layui 元素样式改写*/
+        .layui-btn-sm {
+            line-height: normal;
+            font-size: 12.5px;
+        }
+
+        /*.layui-table-view .layui-table-body {*/
+        /*    min-height: 256px;*/
+        /*}*/
+
+        .layui-table-cell .layui-input.layui-unselect {
+            height: 30px;
+            line-height: 30px;
+        }
+
+        /*设置 layui 表格中单元格内容溢出可见样式*/
+        .table-overlay .layui-table-view,
+        .table-overlay .layui-table-box,
+        .table-overlay .layui-table-body {
+            overflow: visible;
+        }
+
+        .table-overlay .layui-table-cell {
+            height: auto;
+            overflow: visible;
+        }
+
+        /*文本对齐方式*/
+        .text-center {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -42,124 +74,134 @@
     </div>
 </div>
 <table class="js-file-grid" lay-filter="file-table"></table>
+<div style="padding: 10px; background-color: #F2F2F2;">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md7">
+            <div class="layui-card">
+                <div class="layui-card-header">Base Information</div>
+                <div class="layui-card-body">
+                    <form class="layui-form" action="" lay-filter="js-file-form">
+                        <div class="layui-row">
+                            <div class="layui-col-md6" style="display: none;">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">Id</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="fileId" placeholder=""
+                                               class="layui-input" disabled>
+                                    </div>
+                                </div>
+                            </div>
 
-<form class="layui-form" action="" lay-filter="js-file-form">
-    <div class="layui-col-md6" style="display: none;">
-        <div class="layui-form-item">
-            <label class="layui-form-label">Id</label>
-            <div class="layui-input-block">
-                <input type="text" name="fileId" placeholder=""
-                       class="layui-input" disabled>
+                            <div class="layui-col-md6" style="">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">Is Directory</label>
+                                    <div class="layui-input-block">
+                                        <select name="dirFlag" lay-filter="dir-select">
+                                            <option value="0" selected="">No</option>
+                                            <option value="1">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-col-md6">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">Source</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="source" lay-verify="filepath" autocomplete="off"
+                                               placeholder="absolute path begin with /"
+                                               class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-col-md6">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">Target</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="target" lay-verify="filepath" autocomplete="off"
+                                               placeholder="absolute path begin with /"
+                                               class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-col-md6" style="">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">Compare Type</label>
+                                    <div class="layui-input-block">
+                                        <select name="method" lay-filter="type">
+                                            <option value="1" selected="">identical</option>
+                                            <option value="2">exists</option>
+                                            <option value="0">ignore</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-col-md6 js-file-input-div" style="">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">File Type</label>
+                                    <div class="layui-input-block">
+                                        <select name="type" lay-filter="type-sel">
+                                            <option value="1" selected="">properties</option>
+                                            <option value="2">ini</option>
+                                            <option value="0">others</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-col-md6" style="display: none">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">Value Map</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="valueMap" autocomplete="off" placeholder=""
+                                               class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-col-md12">
+                                <div class="layui-form-item" style="text-align: right; padding-right: 10px">
+                                    <div class="layui-input-block js-function-btn">
+                                        <button type="button" class="layui-btn js-layui-btn" data-type="onNewClick">New
+                                        </button>
+                                        <button type="button" class="layui-btn layui-btn-primary js-layui-btn"
+                                                data-type="onEditClick">Edit
+                                        </button>
+                                        <button type="button" class="layui-btn layui-btn-primary js-layui-btn"
+                                                data-type="onDeleteClick">Delete
+                                        </button>
+                                    </div>
+                                    <div class="layui-input-block js-confirm-btn" style="display: none">
+                                        <button type="button" class="layui-btn" lay-submit="" lay-filter="file-submit">
+                                            Submit
+                                        </button>
+                                        <button type="button" class="layui-btn layui-btn-primary js-layui-btn"
+                                                data-type="onCancelClick">Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md5">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <div class="layui-col-md7">Replace ValueMap</div>
+                    <div class="layui-col-md5" style="text-align:right">
+                        <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="Add ValueMap">
+                            <i class="layui-icon layui-icon-add-1"></i> Add
+                        </button>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <div id="tableRes" class="table-overlay">
+                        <table id="dataTable" lay-filter="dataTable" class="layui-hide"></table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="layui-col-md6" style="">
-        <div class="layui-form-item">
-            <label class="layui-form-label">Is Directory</label>
-            <div class="layui-input-block">
-                <select name="dirFlag" lay-filter="dir-select">
-                    <option value="0" selected="">No</option>
-                    <option value="1">Yes</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-md6">
-        <div class="layui-form-item">
-            <label class="layui-form-label">Source</label>
-            <div class="layui-input-block">
-                <input type="text" name="source" lay-verify="filepath" autocomplete="off"
-                       placeholder="absolute path begin with /"
-                       class="layui-input">
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-md6">
-        <div class="layui-form-item">
-            <label class="layui-form-label">Target</label>
-            <div class="layui-input-block">
-                <input type="text" name="target" lay-verify="filepath" autocomplete="off"
-                       placeholder="absolute path begin with /"
-                       class="layui-input">
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-md6" style="">
-        <div class="layui-form-item">
-            <label class="layui-form-label">Compare Type</label>
-            <div class="layui-input-block">
-                <select name="method" lay-filter="type">
-                    <option value="1" selected="">identical</option>
-                    <option value="2">exists</option>
-                    <option value="0">ignore</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-md6 js-file-input-div" style="">
-        <div class="layui-form-item">
-            <label class="layui-form-label">File Type</label>
-            <div class="layui-input-block">
-                <select name="type" lay-filter="type-sel">
-                    <option value="1" selected="">properties</option>
-                    <option value="2">ini</option>
-                    <option value="0">others</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-md6 js-file-input-div" style="">
-        <div class="layui-form-item">
-            <label class="layui-form-label">Value Map</label>
-            <div class="layui-input-block">
-                <input type="text" name="valueMap" autocomplete="off" placeholder=""
-                       class="layui-input">
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-md6" id="addReplace" style="display: none">
-        <div class="layui-form-item" style="text-align: right; padding-right: 10px">
-            <div class="layui-input-block">
-                <button type="button" class="layui-btn js-layui-btn" title="Add replace value" data-type="onAddReplace">
-                    <i class="layui-icon layui-icon-add-1"></i></button>
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-md6 js-dir-input-div" style="display: none">
-        <div class="layui-form-item">
-            <label class="layui-form-label">Exclude File</label>
-            <div class="layui-input-block">
-                <input type="text" name="exclude" autocomplete="off" placeholder="delimiter with |, eg:xxx.txt|xxx.config"
-                       class="layui-input">
-            </div>
-        </div>
-    </div>
-    <div class="js-key-value-parent-div">
-
-    </div>
-    <div class="layui-col-md12">
-        <div class="layui-form-item" style="text-align: right; padding-right: 10px">
-            <div class="layui-input-block js-function-btn">
-                <button type="button" class="layui-btn js-layui-btn" data-type="onNewClick">New</button>
-                <button type="button" class="layui-btn layui-btn-primary js-layui-btn" data-type="onEditClick">Edit</button>
-                <button type="button" class="layui-btn layui-btn-primary js-layui-btn" data-type="onDeleteClick">Delete</button>
-            </div>
-            <div class="layui-input-block js-confirm-btn" style="display: none">
-                <button type="button" class="layui-btn" lay-submit="" lay-filter="file-submit">Submit</button>
-                <button type="button" class="layui-btn layui-btn-primary js-layui-btn"
-                        data-type="onCancelClick">Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-</form>
-<script type="text/html" id="barDemo">
-    <!-- 这里同样支持 laytpl 语法，如： -->
-    {{#  if(d.valueMap.length > 0){ }}
-    <a class="layui-btn layui-btn-xs" lay-event="showDetail">Detail</a>
-    {{#  } }}
-</script>
+</div>
 <script src="../lib/layui/layui.js"></script>
 <script type="text/javascript" src="../js/file.js"></script>
 </body>

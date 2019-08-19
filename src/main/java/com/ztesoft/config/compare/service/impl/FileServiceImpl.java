@@ -37,31 +37,33 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Map<String, Object> syncFile2Server(FileInfo fileInfo) {
-        HostInfo hostinfo = hostInfoRepository.getOne(fileInfo.getHostId());
-        Project project = projectRepository.getOne(hostinfo.getProjectId());
+        HostInfo hostInfo = hostInfoRepository.getOne(fileInfo.getHostId());
+        Project project = projectRepository.getOne(hostInfo.getProjectId());
         List<HostDetail> hostDetails = hostDetailRepository.findByHostId(fileInfo.getHostId());
-        Map<String, Object> hostMap = HostUtil.hostDetailList2Map(hostDetails);
+        Map<String, String> hostMap = HostUtil.hostInfo2Map(hostInfo);
+//        添加hostInfo中的属性
+        hostDetails.addAll(HostUtil.hostProp2HostDetails(hostInfo));
 //        1. 首先判断文件类型，文件夹，文件（三种类型）
 //        2. 根据不同类型的文件执行不同的处理
 //        3. 文件根据valueMap生成临时文件在本地
 //        4. 备份远程文件，传输本地文件到远程
 //        5. 删除本地文件
-        String bathPath = SysUtil.getBasePath(hostinfo, project.getName());
-        String tempPath = bathPath + File.separator + "tmp";
+        String bathPath = SysUtil.getBasePath(hostInfo, project.getName());
         if (fileInfo.getDirFlag() == 1) {
-            return this.scpDir2Sever(fileInfo, hostinfo, hostMap);
+            logger.info("begin to sync dir: " + fileInfo.getTarget());
+            return this.scpDir2Sever(fileInfo, hostInfo, hostMap);
         }
         String localFile = null;
         switch (fileInfo.getType()) {
             case 1:
 //                生成临时配置文件
 //                fileInfo.setTarget(bathPath + fileInfo.getTarget());
-                localFile = FileUtil.generatePropertiesFile(fileInfo, bathPath, hostDetails);
+                localFile = FileUtil.generatePropertiesFile(fileInfo, bathPath, hostMap);
                 break;
             case 2:
 //                生成临时配置文件
 //                fileInfo.setTarget(bathPath + fileInfo.getTarget());
-                localFile = FileUtil.generateIniFile(fileInfo, bathPath, hostDetails);
+                localFile = FileUtil.generateIniFile(fileInfo, bathPath, hostMap);
                 break;
             case 0:
                 localFile = fileInfo.getSource();
@@ -72,18 +74,18 @@ public class FileServiceImpl implements FileService {
         //                传输到指定位置
         logger.info("localFile: " + localFile);
         String target = fileInfo.getTarget();
-        String password = HostUtil.decryptDES((String) hostMap.get("password"));
-        return scpFile2Server(localFile, target, (String) hostMap.get("hostIp"),
-                (String) hostMap.get("user"), password);
+        String password = hostMap.get("password");
+        return scpFile2Server(localFile, target, hostMap.get("hostIp"),
+                hostMap.get("user"), password);
     }
 
-    private Map<String, Object> scpDir2Sever(FileInfo fileInfo, HostInfo hostinfo, Map<String, Object> hostMap) {
+    private Map<String, Object> scpDir2Sever(FileInfo fileInfo, HostInfo hostinfo, Map<String, String> hostMap) {
         Connection connection = new Connection(hostinfo.getHostIp());
         Map<String, Object> map = new HashMap<>();
         try {
             connection.connect();
             System.out.println("开始登录");
-            boolean isAuthenticated = connection.authenticateWithPassword((String) hostMap.get("user"), (String) hostMap.get("password"));
+            boolean isAuthenticated = connection.authenticateWithPassword(hostMap.get("user"), hostMap.get("password"));
             if (!isAuthenticated) {
                 map.put("code", -1);
                 map.put("msg", "connect to server failed.Authentication failed.");
@@ -105,6 +107,8 @@ public class FileServiceImpl implements FileService {
         String targetFileName = fileInfo.getTarget();
         map.put("result", FileReaderUtils.isSameFile(sourceFileName, targetFileName));
         map.put("comments", "full");
+        map.put("source1", FileUtil.file2String(sourceFileName));
+        map.put("target1", FileUtil.file2String(targetFileName));
         map.put("source", FileReaderUtils.getStringListFromFile(sourceFileName));
         map.put("target", FileReaderUtils.getStringListFromFile(targetFileName));
         return map;
@@ -148,24 +152,60 @@ public class FileServiceImpl implements FileService {
     private List<ContentValueInfo> dealIniSection(String sectionName, Map<String, String> sourceValueMap, Map<String, String> targetValueMap, Integer method) {
         List<ContentValueInfo> contentValueInfos = new ArrayList<>();
         Set<String> totalSet = new HashSet<>();
-        totalSet.addAll(sourceValueMap.keySet());
-        totalSet.addAll(targetValueMap.keySet());
         boolean flag = true;
-        for (String key : totalSet) {
-            String sourceValue = sourceValueMap.get(key);
-            String targetValue = targetValueMap.get(key);
-            ContentValueInfo contentValueInfo = new ContentValueInfo();
-            contentValueInfo.setName(key);
-            contentValueInfo.setSectionName(sectionName);
-            contentValueInfo.setSourceValue(sourceValue);
-            contentValueInfo.setTargetValue(targetValue);
-            contentValueInfo.setMethod(method);
-            String status = getStatus(sourceValue, targetValue);
-            if (flag || (!status.equals("1") && method == 1) || (method == 2) && status.equals("4")) {
-                flag = false;
+        if (sourceValueMap != null && targetValueMap != null) {
+            totalSet.addAll(sourceValueMap.keySet());
+            totalSet.addAll(targetValueMap.keySet());
+            for (String key : totalSet) {
+                String sourceValue = sourceValueMap.get(key);
+                String targetValue = targetValueMap.get(key);
+                ContentValueInfo contentValueInfo = new ContentValueInfo();
+                contentValueInfo.setName(key);
+                contentValueInfo.setSectionName(sectionName);
+                contentValueInfo.setSourceValue(sourceValue);
+                contentValueInfo.setTargetValue(targetValue);
+                contentValueInfo.setMethod(method);
+                String status = getStatus(sourceValue, targetValue);
+                if (flag || (!status.equals("1") && method == 1) || (method == 2) && status.equals("4")) {
+                    flag = false;
+                }
+                contentValueInfo.setStatus(status);
+                contentValueInfos.add(contentValueInfo);
             }
-            contentValueInfo.setStatus(status);
-            contentValueInfos.add(contentValueInfo);
+        } else if (sourceValueMap == null && targetValueMap != null) {
+            totalSet.addAll(targetValueMap.keySet());
+            for (String key : totalSet) {
+                String targetValue = targetValueMap.get(key);
+                ContentValueInfo contentValueInfo = new ContentValueInfo();
+                contentValueInfo.setName(key);
+                contentValueInfo.setSectionName(sectionName);
+                contentValueInfo.setSourceValue(null);
+                contentValueInfo.setTargetValue(targetValue);
+                contentValueInfo.setMethod(method);
+                String status = getStatus(null, targetValue);
+                if (flag || (!status.equals("1") && method == 1) || (method == 2) && status.equals("4")) {
+                    flag = false;
+                }
+                contentValueInfo.setStatus(status);
+                contentValueInfos.add(contentValueInfo);
+            }
+        } else if (sourceValueMap != null) {
+            totalSet.addAll(sourceValueMap.keySet());
+            for (String key : totalSet) {
+                String sourceValue = sourceValueMap.get(key);
+                ContentValueInfo contentValueInfo = new ContentValueInfo();
+                contentValueInfo.setName(key);
+                contentValueInfo.setSectionName(sectionName);
+                contentValueInfo.setSourceValue(sourceValue);
+                contentValueInfo.setTargetValue(null);
+                contentValueInfo.setMethod(method);
+                String status = getStatus(sourceValue, null);
+                if (flag || (!status.equals("1") && method == 1) || (method == 2) && status.equals("4")) {
+                    flag = false;
+                }
+                contentValueInfo.setStatus(status);
+                contentValueInfos.add(contentValueInfo);
+            }
         }
         return contentValueInfos;
     }
@@ -224,10 +264,7 @@ public class FileServiceImpl implements FileService {
             map.put("code", 0);
             map.put("msg", "This file compare method is ignore");
         }
-//        List<ContentValueInfo> contentValueInfos = DiffProperties.compareProperties(sourceFile, targetFile);
-
         map.put("result", contentValueInfos);
-//        map.put("comments", "111");
         return map;
     }
 
@@ -316,11 +353,11 @@ public class FileServiceImpl implements FileService {
         HostInfo hostInfo = hostInfoRepository.getOne(id);
         Project project = projectRepository.getOne(hostInfo.getProjectId());
         String projectName = project.getName();
-        List<HostDetail> hostDetails = hostDetailRepository.findByHostId(id);
-        Map<String, Object> map = HostUtil.hostDetailList2Map(hostDetails);
-        map.put("hostId", hostInfo.getHostId());
-        map.put("hostIp", hostInfo.getHostIp());
-        map.put("projectId", hostInfo.getProjectId());
+//        List<HostDetail> hostDetails = hostDetailRepository.findByHostId(id);
+//        Map<String, Object> map = HostUtil.hostDetailList2Map(hostDetails);
+//        map.put("hostId", hostInfo.getHostId());
+//        map.put("hostIp", hostInfo.getHostIp());
+//        map.put("projectId", hostInfo.getProjectId());
         String basePath = SysUtil.getBasePathWithoutSeparator(hostInfo, projectName);
 //        收集文件前先清空目录
         FileUtil.deleteDir(basePath);
@@ -330,8 +367,8 @@ public class FileServiceImpl implements FileService {
         try {
             connection.connect();
             System.out.println("开始登录");
-            String password = HostUtil.decryptDES((String) map.get("password"));
-            boolean isAuthenticated = connection.authenticateWithPassword((String) map.get("user"), password);
+            String password = HostUtil.decryptDES(hostInfo.getPassword());
+            boolean isAuthenticated = connection.authenticateWithPassword(hostInfo.getUser(), password);
             if (!isAuthenticated) {
                 System.out.println("登录服务器失败！");
                 return null;
@@ -383,13 +420,13 @@ public class FileServiceImpl implements FileService {
         }
         File file = new File(localFile);
         String retCode = ScpTools.backupFile(target, connection);
-//        todo  不管成功与否 都将文件推送过去
         System.out.println("backup return code: " + retCode);
         if (!retCode.equalsIgnoreCase("0")) {
             map.put("fileName", file.getName());
             map.put("code", -1);
             map.put("msg", "backup file failed;");
-            return map;
+            //        todo  不管成功与否 都将文件推送过去
+//            return map;
         }
         Map<String, Object> result = ScpTools.uploadFile(file, remotePath, connection, null);
         connection.close();
@@ -463,6 +500,17 @@ public class FileServiceImpl implements FileService {
         Date d = new Date();
         String str = sdf.format(d);
         return str;
+    }
+
+    public static void main(String[] args) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setSource("D:\\Program Files (x86)\\DingDing\\main\\current\\targetimp.ini");
+        fileInfo.setTarget("D:\\Program Files (x86)\\DingDing\\main\\current\\源主机imp.ini");
+        fileInfo.setMethod(1);
+        fileInfo.setType(2);
+        fileInfo.setValueMap("");
+        FileServiceImpl fileService = new FileServiceImpl();
+        fileService.compareIni(fileInfo);
     }
 
 }

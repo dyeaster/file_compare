@@ -44,10 +44,18 @@ layui.use(['tree', 'form', 'util', 'table'], function () {
                     $('.js-full-result').show();
                     // data.target = data.target.replace(/\s/g, "<br>");
                     // data.source = data.source.replace(/\s/g, "<br>");
-                    data.target = data.target.join("<br>");
-                    data.source = data.source.join("<br>");
-                    $('.js-target-full').html(data.target);
-                    $('.js-source-full').html(data.source);
+                    // data.target = data.target.join("<br>");
+                    // data.source = data.source.join("<br>");
+                    // var temp = formatXmlCommon(data.source1);
+                    // console.log(temp);
+                    var regex = /\.XML/i;
+                    if(regex.test(fileInfo.target)) {
+                        $('.js-target-full pre').text(formatXmlCommon(data.target1));
+                        $('.js-source-full pre').text(formatXmlCommon(data.source1));
+                    } else {
+                        $('.js-target-full pre').text(data.target1);
+                        $('.js-source-full pre').text(data.source1);
+                    }
                     return;
                 }
                 $('.js-file-result').show();
@@ -220,6 +228,83 @@ layui.use(['tree', 'form', 'util', 'table'], function () {
         var temp = filePath.split("/");
         return regex.test(filePath) ? temp[temp.length - 2] : temp[temp.length - 1];
     }
+
+    // param为传入的xml字符串
+    function formatXmlCommon(param) {
+        var formattedXml = "";
+        if (!param) {
+            return formattedXml;
+        }
+
+        try {
+            var heardXml = "";
+            var xml = "";
+            // 将字符串解析成xml对象
+            var doc = $.parseXML(param);
+
+            // 将xml字符串格式话并返回
+            if (doc && doc.documentElement && doc.documentElement.outerHTML) {
+                xml = this.formatXml(doc.documentElement.outerHTML);
+            }
+
+            // 获得原xml文档的头部定义
+            var version = doc.xmlVersion || '';
+            var encoding = doc.xmlEncoding || '';
+            if (param.indexOf('<?xml') != -1) {
+                heardXml = "<?xml version=\'" + version + "\' encoding=\'" + encoding + "\'?>\n";
+            }
+            // 合并xml头部和主体
+            formattedXml = heardXml + xml;
+        } catch (err) {
+            formattedXml = param.replace(/></g, ">\n<");
+        }
+        return formattedXml;
+    }
+
+
+    function formatXml(xml) {
+        var formatted = '';
+        // 匹配 ><后接任意字符的 比如 ><id....
+        var reg = /(>)(<)(\/*)/g;
+        // 往尖括号间插入换行符
+        xml = xml.replace(reg, '$1\r\n$2$3');
+        var pad = 0;
+        // 用换行分隔字符串，然后挨个进行判断，添加缩进
+        $.each(xml.split('\r\n'), function (index, node) {
+            // 本节点的相对缩进量 相对上一个节点
+            var indent = 0;
+            // 匹配类似 gsgs</zsmart> 这种，即包含元素的节点
+            if (node.match(/.+<\/\w[^>]*>$/)) {
+                // 起始元素，不用缩进
+                indent = 0;
+                // 匹配以</开头的字符，比如 </zsmart
+            } else if (node.match(/^<\/\w/)) {
+                // 非起始节点，该节点为结束标签，缩进量减1
+                if (pad != 0) {
+                    pad -= 1;
+                }
+                // 匹配以<开头，然后接任意字符，中间包含>并以任一字符结尾，然后接任意字符 比如 <kjl>lkjlj</hjgj>
+            } else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+                // 子元素，缩进量为1
+                indent = 1;
+            } else {
+                indent = 0;
+            }
+
+            // 获得该元素的缩进量
+            var padding = '';
+            for (var i = 0; i < pad; i++) {
+                padding += ' ';
+            }
+
+            // 组合缩进量以及内容加换行
+            formatted += padding + node + '\r\n';
+            // 获取本节点的缩进量，传入下一个节点
+            pad += indent;
+        });
+        return formatted;
+    }
+
 
 //按钮事件
     util.event('lay-demo', {

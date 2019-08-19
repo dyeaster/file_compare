@@ -239,6 +239,14 @@ public class FileReaderUtils {
     }
 
     public static void main(String[] args) {
-
+        String fileName = "D:\\Program Files (x86)\\DingDing\\main\\current\\targetimp.ini";
+        String fileName1 = "D:\\Program Files (x86)\\DingDing\\main\\current\\源主机imp.ini";
+        Map<String, Map<String, String>> map  = readIni(fileName1);
+        for (Map.Entry<String,Map<String,String>> map1: map.entrySet()) {
+            String key = map1.getKey();
+            for(Map.Entry<String,String> entry: map1.getValue().entrySet()) {
+                System.out.println("section: " + key + ", key: " + entry.getKey() + ", value: " + entry.getValue());
+            }
+        }
     }
 }
